@@ -16,12 +16,10 @@
   <script type="module">
     import StreamX from './streamx.js';
     const stream = new StreamX('123', '456')
-    stream.log()
-
     const addNewMessage = (message) => {
       const messagesDiv = document.getElementById('messages');
       const newMessage = document.createElement('p');
-      newMessage.textContent = `Message: ${message}`;
+      newMessage.textContent = `Message: ${JSON.stringify(message)}`;
       messagesDiv.appendChild(newMessage);
 
       // Auto-scroll to the bottom

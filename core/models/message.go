@@ -1,6 +1,10 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/google/uuid"
+)
 
 // Message ...
 type Message struct {
@@ -13,9 +17,9 @@ type Message struct {
 
 func NewMessage(instanceID, channelID, event, data string) *Message {
 	return &Message{
+		ID:         uuid.NewString(),
 		InstanceID: instanceID,
 		ChannelID:  channelID,
-		ID:         "",
 		Event:      event,
 		Data:       data,
 	}

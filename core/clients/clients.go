@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/models"
 )
@@ -62,9 +63,10 @@ func (c *Client) sendMessage(writer *bufio.Writer, message string) error {
 func (c *Client) Listen(w *bufio.Writer) {
 	go func() {
 		for {
-			msg := models.NewMessage(c.instanceID, c.channelID, "message", time.Now().String())
-			msg.Event = "keep-alive"
-			msg.ID = uuid.NewString()
+			data := map[string]string{
+				"time": time.Now().Format(time.RFC3339),
+			}
+			msg := models.NewMessage(c.instanceID, c.channelID, "keep-alive", string(helpers.ToBytes(data)))
 
 			c.messages <- msg
 			<-time.After(15 * time.Second)
