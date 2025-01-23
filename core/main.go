@@ -23,7 +23,6 @@ func init() {
 	if err := sqlr.GORM().AutoMigrate(models.GetSchema()...); err != nil {
 		panic(err)
 	}
-
 }
 
 func main() {
