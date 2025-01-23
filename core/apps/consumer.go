@@ -3,8 +3,8 @@ package apps
 import (
 	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
+	"github.com/streamx/core/clients"
 	"github.com/streamx/core/models"
-	"github.com/streamx/core/subscribers"
 	"github.com/streamx/core/utils"
 )
 
@@ -25,7 +25,7 @@ func RunConsumer() {
 		poolID := utils.GetPoolID(message.InstanceID, message.ChannelID)
 
 		// Send message to all clients in the pool
-		clients := subscribers.GetClients(poolID)
+		clients := clients.GetClients(poolID)
 		logs.Info("sending message to %d clients in pool: %s", len(clients), poolID)
 		for _, client := range clients {
 			client.AddMessage(&message)

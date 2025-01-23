@@ -1,4 +1,4 @@
-package subscribers
+package clients
 
 import (
 	"bufio"

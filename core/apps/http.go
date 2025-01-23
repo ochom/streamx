@@ -7,8 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/google/uuid"
 	"github.com/ochom/gutils/logs"
+	"github.com/streamx/core/clients"
 	"github.com/streamx/core/models"
-	"github.com/streamx/core/subscribers"
 	"github.com/valyala/fasthttp"
 )
 
@@ -34,8 +34,8 @@ func RunHttpServer() {
 		ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
 		ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
-		client := subscribers.NewClient(c.Params("instanceID"), c.Params("channelID"))
-		subscribers.AddClient(client)
+		client := clients.NewClient(c.Params("instanceID"), c.Params("channelID"))
+		clients.AddClient(client)
 
 		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
 			client.Listen(w)
