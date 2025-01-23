@@ -6,17 +6,12 @@ import (
 
 	"github.com/ochom/gutils/env"
 	"github.com/ochom/gutils/logs"
-	"github.com/ochom/gutils/pubsub"
 	"github.com/ochom/gutils/sqlr"
 	"github.com/streamx/core/apps"
 	"github.com/streamx/core/models"
 )
 
-var publisher pubsub.Publisher
-
 func init() {
-	publisher = pubsub.NewPublisher(env.Get("RABBITMQ_URL"), "STREAMX", "STREAMX")
-
 	err := sqlr.Init(&sqlr.Config{
 		Url: env.Get("DB_URL"),
 	})
