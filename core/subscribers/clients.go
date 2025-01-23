@@ -80,9 +80,4 @@ func (c *Client) Listen(w *bufio.Writer) {
 
 	// remove client when broken
 	removeClient(c)
-
-	// for {
-	// 	c.sendMessage(w, fmt.Sprintf("data: Message: %s\n\n", time.Now()))
-	// 	time.Sleep(5 * time.Second)
-	// }
 }
