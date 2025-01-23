@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSE Listener</title>
+</head>
+
+<body>
+  <h1>Server-Sent Events Listener</h1>
+  <div id="messages" style="border: 1px solid #ccc; padding: 10px; width: 400px; height: 300px; overflow-y: auto;">
+    <p><em>Waiting for messages...</em></p>
+  </div>
+
+  <script type="module">
+    import StreamX from './streamx.js';
+    const stream = new StreamX('123', '456')
+    stream.log()
+
+    const addNewMessage = (message) => {
+      const messagesDiv = document.getElementById('messages');
+      const newMessage = document.createElement('p');
+      newMessage.textContent = `Message: ${message}`;
+      messagesDiv.appendChild(newMessage);
+
+      // Auto-scroll to the bottom
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Handle incoming messages
+    stream.on('message', (data) => {
+      console.log('Message received:', data);
+      addNewMessage(data);
+    });
+
+    stream.on('keep-alive', (data) => {
+      console.log('Keep-alive received:', data);
+      addNewMessage(data);
+    });
+  </script>
+</body>
+
+</html>
