@@ -1,11 +1,56 @@
 package models
 
-import "time"
+import (
+	"time"
 
-// User model
+	"github.com/google/uuid"
+	uuidx "github.com/ochom/gutils/uuid"
+	"gorm.io/gorm"
+)
+
+// User  ...
 type User struct {
-	ID        uint      `json:"id" gorm:"primary_key"`
+	ID        uuid.UUID `json:"id" gorm:"primaryKey;default:uuid_generate_v4()"`
+	ApiKey    string    `json:"api_key" gorm:"uniqueIndex"`
 	Name      string    `json:"name"`
-	Email     string    `json:"email"`
+	Email     string    `json:"email" gorm:"unique"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+// NewUser ...
+func NewUser(name, email string) *User {
+	return &User{
+		Name:   name,
+		Email:  email,
+		ApiKey: uuidx.New(),
+	}
+}
+
+// BeforeCreate ...
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	if u.ApiKey == "" {
+		u.ApiKey = uuidx.New()
+	}
+	return
+}
+
+// Instance ...
+type Instance struct {
+	ID          uuid.UUID `json:"id" gorm:"primaryKey;default:uuid_generate_v4()"`
+	UserID      uuid.UUID `json:"user_id" gorm:"index"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at" gorm:"default:now()"`
+
+	User *User `json:"user" gorm:"foreignKey:UserID"`
+}
+
+// NewInstance ...
+func NewInstance(userID uuid.UUID, name, description string) *Instance {
+	return &Instance{
+		ID:          uuid.New(),
+		UserID:      userID,
+		Name:        name,
+		Description: description,
+	}
 }

@@ -23,7 +23,12 @@ func RunHttpServer() {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	app.Get("/subscribe/:instanceID/:channelID", func(c *fiber.Ctx) error {
+	app.Get("/subscribe/:apiKey/:instanceID/:channelID", func(c *fiber.Ctx) error {
+		// validate api key and instance id
+		if err := models.ValidateSubscriber(c.Params("apiKey"), c.Params("instanceID")); err != nil {
+			return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
+		}
+
 		ctx := c.Context()
 
 		ctx.SetContentType("text/event-stream")
@@ -44,7 +49,14 @@ func RunHttpServer() {
 	})
 
 	app.Post("/publish/:instanceID/:channelID", func(c *fiber.Ctx) error {
-		// TODO check if instanceID and channelID are valid
+		token := c.Get("Authorization")
+		if token == "" {
+			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "unauthorized, missing api key"})
+		}
+
+		if err := models.ValidateSubscriber(token, c.Params("instanceID")); err != nil {
+			return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
+		}
 
 		// TODO check if user limit is not exceeded
 

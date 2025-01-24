@@ -1,8 +1,8 @@
 export default class StreamX {
   static es = null;
-  constructor(instanceID, channelID) {
+  constructor(apiKey, instanceID, channelID) {
     this.es = new EventSource(
-      `http://localhost:8080/subscribe/${instanceID}/${channelID}`
+      `http://localhost:8080/subscribe/${apiKey}/${instanceID}/${channelID}`
     );
   }
 

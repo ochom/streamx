@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.5.0
 	github.com/ochom/gutils v1.7.8
 	github.com/valyala/fasthttp v1.51.0
+	gorm.io/gorm v1.25.10
 )
 
 require (
@@ -36,7 +37,6 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	gorm.io/driver/mysql v1.5.1 // indirect
 	gorm.io/driver/postgres v1.5.9 // indirect
-	gorm.io/gorm v1.25.10 // indirect
 	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.5.0 // indirect
