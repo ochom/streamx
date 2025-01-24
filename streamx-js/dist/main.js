@@ -25,7 +25,7 @@ __export(main_exports, {
 module.exports = __toCommonJS(main_exports);
 var StreamX = class {
   constructor(apiKey, instanceID, channelID, config) {
-    const baseUrl = config?.baseUrl || "https://apis.streamx.io";
+    const baseUrl = config?.baseUrl || "https://api.streamx.co.ke";
     this.es = new EventSource(
       `${baseUrl}/subscribe/${apiKey}/${instanceID}/${channelID}`
     );
