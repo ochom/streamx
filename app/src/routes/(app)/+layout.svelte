@@ -1,4 +1,5 @@
 <script>
+	import '../../app.css';
 	let { data, children } = $props();
 	let { supabase } = $derived(data);
 
