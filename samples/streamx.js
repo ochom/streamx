@@ -2,7 +2,7 @@ export default class StreamX {
   static es = null;
   constructor(apiKey, instanceID, channelID) {
     this.es = new EventSource(
-      `http://localhost:8080/subscribe/${apiKey}/${instanceID}/${channelID}`
+      `https://apis.streamx.io/subscribe/${apiKey}/${instanceID}/${channelID}`
     );
   }
 
@@ -12,7 +12,7 @@ export default class StreamX {
     }
 
     this.es.addEventListener(eventName, (event) => {
-      callback(JSON.parse(event.data));
+      callback(event);
     });
   }
 
