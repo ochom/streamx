@@ -79,10 +79,13 @@ headersList = {
 
 payload = json.dumps({
   "instanceID": "b06ec5d2-7e98-4608-83c7-a59100549aa2",
-  "channel":"456",
-  "event": "bet-win",
+  "channel":"accounts",
+  "event": "top-up",
   "message": {
-    "content": "You have lost a bet 21"
+    "balance_before": 2580,
+    "balance_after": 4580,
+    "amount": 2000,
+    "currency":"KES",
   }
 })
 
@@ -90,3 +93,9 @@ response = requests.request("POST", "https://apis.streamx.io/publish", data=payl
 
 print(response.text)
 ```
+
+### Contributions
+
+Feel free to contribute to this project. Your contributions will be very appreciated
+
+🎉 Happy Coding 🎉
