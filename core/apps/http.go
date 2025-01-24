@@ -38,7 +38,7 @@ func RunHttpServer() {
 		clients.AddClient(client)
 
 		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
-			client.Listen(w)
+			client.Listen(ctx, w)
 		}))
 		return nil
 	})
@@ -64,7 +64,7 @@ func RunHttpServer() {
 		}
 
 		// add message to queue
-		broadcastMessage(message)
+		broadcastMessage(&message)
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 

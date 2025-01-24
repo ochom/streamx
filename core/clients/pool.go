@@ -25,8 +25,8 @@ func AddClient(client *Client) {
 	clientPool[poolID] = append(clientPool[poolID], client)
 }
 
-// removeClient ...
-func removeClient(client *Client) {
+// RemoveClient ...
+func RemoveClient(client *Client) {
 	mux.Lock()
 	defer mux.Unlock()
 
@@ -36,9 +36,15 @@ func removeClient(client *Client) {
 		return
 	}
 
-	clientPool[poolID] = slices.DeleteFunc(clientPool[poolID], func(c *Client) bool {
+	clients := slices.DeleteFunc(clientPool[poolID], func(c *Client) bool {
 		return c.id == client.id
 	})
+
+	if len(clients) == 0 {
+		delete(clientPool, poolID)
+	} else {
+		clientPool[poolID] = clients
+	}
 }
 
 // GetClients ...
@@ -50,4 +56,17 @@ func GetClients(poolID string) []*Client {
 	}
 
 	return clientPool[poolID]
+}
+
+// GetPools ...
+func GetPools() []string {
+	mux.Lock()
+	defer mux.Unlock()
+
+	pools := []string{}
+	for poolID := range clientPool {
+		pools = append(pools, poolID)
+	}
+
+	return pools
 }

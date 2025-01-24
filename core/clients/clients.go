@@ -3,12 +3,11 @@ package clients
 import (
 	"bufio"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
-	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/models"
+	"github.com/valyala/fasthttp"
 )
 
 type Client struct {
@@ -60,26 +59,26 @@ func (c *Client) sendMessage(writer *bufio.Writer, message string) error {
 	return nil
 }
 
-func (c *Client) Listen(w *bufio.Writer) {
+func (c *Client) Listen(ctx *fasthttp.RequestCtx, w *bufio.Writer) {
+	stop := make(chan int, 1)
+
 	go func() {
 		for {
-			data := map[string]string{
-				"time": time.Now().Format(time.RFC3339),
+			select {
+			case msg := <-c.messages:
+				if err := c.sendMessage(w, msg.Format()); err != nil {
+					logs.Error("sending message to client: %s", err)
+					stop <- 1
+					return
+				}
+			case <-ctx.Done():
+				logs.Info("client disconnected: %s", c.id)
+				stop <- 1
+				return
 			}
-			msg := models.NewMessage(c.instanceID, c.channelID, "keep-alive", string(helpers.ToBytes(data)))
-
-			c.messages <- msg
-			<-time.After(15 * time.Second)
 		}
 	}()
 
-	for msg := range c.messages {
-		if err := c.sendMessage(w, msg.Format()); err != nil {
-			logs.Error("sending message to client: %s", err)
-			break
-		}
-	}
-
-	// remove client when broken
-	removeClient(c)
+	<-stop
+	RemoveClient(c)
 }

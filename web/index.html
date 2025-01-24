@@ -9,30 +9,18 @@
 
 <body>
   <h1>Server-Sent Events Listener</h1>
-  <div id="messages" style="border: 1px solid #ccc; padding: 10px; width: 400px; height: 300px; overflow-y: auto;">
-    <p><em>Waiting for messages...</em></p>
-  </div>
+  <h2>Our Message: <b id="message"></b></h2>
 
   <script type="module">
     import StreamX from './streamx.js';
     const stream = new StreamX('123', '456')
     const addNewMessage = (message) => {
-      const messagesDiv = document.getElementById('messages');
-      const newMessage = document.createElement('p');
-      newMessage.textContent = `Message: ${JSON.stringify(message)}`;
-      messagesDiv.appendChild(newMessage);
-
-      // Auto-scroll to the bottom
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      const element = document.getElementById('message');
+      element.innerHTML = message.content;
     }
 
-    // Handle incoming messages
-    stream.on('message', (data) => {
-      console.log('Message received:', data);
-      addNewMessage(data);
-    });
 
-    stream.on('keep-alive', (data) => {
+    stream.on('bet-win', (data) => {
       console.log('Keep-alive received:', data);
       addNewMessage(data);
     });
