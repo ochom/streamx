@@ -36,19 +36,6 @@ func (c *Client) AddMessage(msg *models.Message) {
 	c.messages <- msg
 }
 
-// welcome send the first message
-func (c *Client) welcome() {
-	welcomeMessage := &models.Message{
-		InstanceID: c.instanceID,
-		Channel:    c.channel,
-		ID:         uuid.NewString(),
-		Event:      "connected",
-		Data:       "Connected to the server",
-	}
-
-	c.AddMessage(welcomeMessage)
-}
-
 // sendMessage ...
 func (c *Client) sendMessage(writer *bufio.Writer, message string) error {
 	_, err := fmt.Fprint(writer, message)
