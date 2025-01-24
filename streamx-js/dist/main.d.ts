@@ -6,7 +6,7 @@ type EventData = {
 };
 declare class StreamX {
     es: EventSource;
-    constructor(apiKey: string, instanceID: string, channelID: string);
+    constructor(apiKey: string, instanceID: string, channelID: string, config?: any);
     on(eventName: string, callback: callBackFunc): void;
     close(): void;
 }

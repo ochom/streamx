@@ -1,8 +1,9 @@
 // src/main.ts
 var StreamX = class {
-  constructor(apiKey, instanceID, channelID) {
+  constructor(apiKey, instanceID, channelID, config) {
+    const baseUrl = config?.baseUrl || "https://apis.streamx.io";
     this.es = new EventSource(
-      `https://apis.streamx.io/subscribe/${apiKey}/${instanceID}/${channelID}`
+      `${baseUrl}/subscribe/${apiKey}/${instanceID}/${channelID}`
     );
   }
   on(eventName, callback) {

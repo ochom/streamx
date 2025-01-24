@@ -7,9 +7,15 @@ export type EventData = {
 
 export default class StreamX {
   es: EventSource;
-  constructor(apiKey: string, instanceID: string, channelID: string) {
+  constructor(
+    apiKey: string,
+    instanceID: string,
+    channelID: string,
+    config?: any
+  ) {
+    const baseUrl = config?.baseUrl || "https://apis.streamx.io";
     this.es = new EventSource(
-      `https://apis.streamx.io/subscribe/${apiKey}/${instanceID}/${channelID}`
+      `${baseUrl}/subscribe/${apiKey}/${instanceID}/${channelID}`
     );
   }
 
