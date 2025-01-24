@@ -1,6 +1,6 @@
 {
   "name": "streamx-js",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
   "main": "dist/main.mjs",
   "module": "dist/main.js",
@@ -16,7 +16,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsup src/main.ts --format esm,cjs --dts --out-dir dist"
+    "build": "tsup src/main.ts --format esm,cjs --dts --out-dir dist",
+    "deploy": "npm publish --access public"
   },
   "keywords": [],
   "author": "",
