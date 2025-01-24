@@ -13,7 +13,7 @@ import (
 
 func init() {
 	err := sqlr.Init(&sqlr.Config{
-		Url: env.Get("DB_URL"),
+		Url: env.Get("DATABASE_URL"),
 	})
 
 	if err != nil {
@@ -24,6 +24,9 @@ func init() {
 		panic(err)
 	}
 
+	if err := models.CreateFirstInstance(); err != nil {
+		panic(err)
+	}
 }
 
 func main() {

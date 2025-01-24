@@ -7,8 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/google/uuid"
 	"github.com/ochom/gutils/logs"
+	"github.com/streamx/core/clients"
 	"github.com/streamx/core/models"
-	"github.com/streamx/core/subscribers"
 	"github.com/valyala/fasthttp"
 )
 
@@ -23,7 +23,12 @@ func RunHttpServer() {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	app.Get("/subscribe/:instanceID/:channelID", func(c *fiber.Ctx) error {
+	app.Get("/subscribe/:apiKey/:instanceID/:channelID", func(c *fiber.Ctx) error {
+		// validate api key and instance id
+		if err := models.ValidateSubscriber(c.Params("apiKey"), c.Params("instanceID")); err != nil {
+			return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
+		}
+
 		ctx := c.Context()
 
 		ctx.SetContentType("text/event-stream")
@@ -34,27 +39,32 @@ func RunHttpServer() {
 		ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
 		ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
-		client := subscribers.NewClient(c.Params("instanceID"), c.Params("channelID"))
-		subscribers.AddClient(client)
+		client := clients.NewClient(c.Params("instanceID"), c.Params("channelID"))
+		clients.AddClient(client)
 
 		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
-			client.Listen(w)
+			client.Listen(ctx, w)
 		}))
 		return nil
 	})
 
-	app.Post("/publish/:instanceID/:channelID", func(c *fiber.Ctx) error {
-		// TODO check if instanceID and channelID are valid
-
-		// TODO check if user limit is not exceeded
+	app.Post("/publish", func(c *fiber.Ctx) error {
+		token := c.Get("Authorization")
+		if token == "" {
+			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "unauthorized, missing api key"})
+		}
 
 		var message models.Message
 		if err := c.BodyParser(&message); err != nil {
 			return c.JSON(fiber.Map{"status": "error", "message": err.Error()})
 		}
 
-		message.InstanceID = c.Params("instanceID")
-		message.ChannelID = c.Params("channelID")
+		if err := models.ValidateSubscriber(token, message.InstanceID); err != nil {
+			return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
+		}
+
+		// TODO check if user limit is not exceeded
+
 		if message.ID == "" {
 			message.ID = uuid.NewString()
 		}
@@ -64,7 +74,7 @@ func RunHttpServer() {
 		}
 
 		// add message to queue
-		broadcastMessage(message)
+		broadcastMessage(&message)
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 

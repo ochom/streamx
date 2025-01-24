@@ -1,4 +1,4 @@
-package subscribers
+package clients
 
 import (
 	"slices"
@@ -16,7 +16,7 @@ func AddClient(client *Client) {
 	mux.Lock()
 	defer mux.Unlock()
 
-	poolID := utils.GetPoolID(client.instanceID, client.channelID)
+	poolID := utils.GetPoolID(client.instanceID, client.channel)
 	logs.Info("adding new client: %s to pool: %s", client.id, poolID)
 	if _, ok := clientPool[poolID]; !ok {
 		clientPool[poolID] = []*Client{}
@@ -25,20 +25,26 @@ func AddClient(client *Client) {
 	clientPool[poolID] = append(clientPool[poolID], client)
 }
 
-// removeClient ...
-func removeClient(client *Client) {
+// RemoveClient ...
+func RemoveClient(client *Client) {
 	mux.Lock()
 	defer mux.Unlock()
 
-	poolID := utils.GetPoolID(client.instanceID, client.channelID)
+	poolID := utils.GetPoolID(client.instanceID, client.channel)
 	logs.Info("removing client: %s from pool: %s", client.id, poolID)
 	if _, ok := clientPool[poolID]; !ok {
 		return
 	}
 
-	clientPool[poolID] = slices.DeleteFunc(clientPool[poolID], func(c *Client) bool {
+	clients := slices.DeleteFunc(clientPool[poolID], func(c *Client) bool {
 		return c.id == client.id
 	})
+
+	if len(clients) == 0 {
+		delete(clientPool, poolID)
+	} else {
+		clientPool[poolID] = clients
+	}
 }
 
 // GetClients ...
@@ -50,4 +56,17 @@ func GetClients(poolID string) []*Client {
 	}
 
 	return clientPool[poolID]
+}
+
+// GetPools ...
+func GetPools() []string {
+	mux.Lock()
+	defer mux.Unlock()
+
+	pools := []string{}
+	for poolID := range clientPool {
+		pools = append(pools, poolID)
+	}
+
+	return pools
 }

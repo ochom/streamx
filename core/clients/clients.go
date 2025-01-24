@@ -1,28 +1,28 @@
-package subscribers
+package clients
 
 import (
 	"bufio"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/models"
+	"github.com/valyala/fasthttp"
 )
 
 type Client struct {
 	id         string
 	instanceID string
-	channelID  string
+	channel    string
 	messages   chan *models.Message
 }
 
 // NewClient ...
-func NewClient(instanceID, channelID string) *Client {
+func NewClient(instanceID, channel string) *Client {
 	return &Client{
 		id:         uuid.NewString(),
 		instanceID: instanceID,
-		channelID:  channelID,
+		channel:    channel,
 		messages:   make(chan *models.Message, 100),
 	}
 }
@@ -35,7 +35,7 @@ func (c *Client) AddMessage(msg *models.Message) {
 func (c *Client) welcome() {
 	welcomeMessage := &models.Message{
 		InstanceID: c.instanceID,
-		ChannelID:  c.channelID,
+		Channel:    c.channel,
 		ID:         uuid.NewString(),
 		Event:      "connected",
 		Data:       "Connected to the server",
@@ -59,30 +59,26 @@ func (c *Client) sendMessage(writer *bufio.Writer, message string) error {
 	return nil
 }
 
-func (c *Client) Listen(w *bufio.Writer) {
+func (c *Client) Listen(ctx *fasthttp.RequestCtx, w *bufio.Writer) {
+	stop := make(chan int, 1)
+
 	go func() {
 		for {
-			msg := models.NewMessage(c.instanceID, c.channelID, "message", time.Now().String())
-			msg.Event = "keep-alive"
-			msg.ID = uuid.NewString()
-
-			c.messages <- msg
-			<-time.After(15 * time.Second)
+			select {
+			case msg := <-c.messages:
+				if err := c.sendMessage(w, msg.Format()); err != nil {
+					logs.Error("sending message to client: %s", err)
+					stop <- 1
+					return
+				}
+			case <-ctx.Done():
+				logs.Info("client disconnected: %s", c.id)
+				stop <- 1
+				return
+			}
 		}
 	}()
 
-	for msg := range c.messages {
-		if err := c.sendMessage(w, msg.Format()); err != nil {
-			logs.Error("sending message to client: %s", err)
-			break
-		}
-	}
-
-	// remove client when broken
-	removeClient(c)
-
-	// for {
-	// 	c.sendMessage(w, fmt.Sprintf("data: Message: %s\n\n", time.Now()))
-	// 	time.Sleep(5 * time.Second)
-	// }
+	<-stop
+	RemoveClient(c)
 }
