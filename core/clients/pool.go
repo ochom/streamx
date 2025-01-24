@@ -16,7 +16,7 @@ func AddClient(client *Client) {
 	mux.Lock()
 	defer mux.Unlock()
 
-	poolID := utils.GetPoolID(client.instanceID, client.channelID)
+	poolID := utils.GetPoolID(client.instanceID, client.channel)
 	logs.Info("adding new client: %s to pool: %s", client.id, poolID)
 	if _, ok := clientPool[poolID]; !ok {
 		clientPool[poolID] = []*Client{}
@@ -30,7 +30,7 @@ func RemoveClient(client *Client) {
 	mux.Lock()
 	defer mux.Unlock()
 
-	poolID := utils.GetPoolID(client.instanceID, client.channelID)
+	poolID := utils.GetPoolID(client.instanceID, client.channel)
 	logs.Info("removing client: %s from pool: %s", client.id, poolID)
 	if _, ok := clientPool[poolID]; !ok {
 		return

@@ -48,25 +48,23 @@ func RunHttpServer() {
 		return nil
 	})
 
-	app.Post("/publish/:instanceID/:channelID", func(c *fiber.Ctx) error {
+	app.Post("/publish", func(c *fiber.Ctx) error {
 		token := c.Get("Authorization")
 		if token == "" {
 			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "unauthorized, missing api key"})
 		}
-
-		if err := models.ValidateSubscriber(token, c.Params("instanceID")); err != nil {
-			return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
-		}
-
-		// TODO check if user limit is not exceeded
 
 		var message models.Message
 		if err := c.BodyParser(&message); err != nil {
 			return c.JSON(fiber.Map{"status": "error", "message": err.Error()})
 		}
 
-		message.InstanceID = c.Params("instanceID")
-		message.ChannelID = c.Params("channelID")
+		if err := models.ValidateSubscriber(token, message.InstanceID); err != nil {
+			return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
+		}
+
+		// TODO check if user limit is not exceeded
+
 		if message.ID == "" {
 			message.ID = uuid.NewString()
 		}

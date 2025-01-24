@@ -26,7 +26,7 @@ func RunConsumer() {
 		logs.Info("sending message: %s", string(helpers.ToBytes(message)))
 
 		// Create a pool ID
-		poolID := utils.GetPoolID(message.InstanceID, message.ChannelID)
+		poolID := utils.GetPoolID(message.InstanceID, message.Channel)
 
 		// Send message to all clients in the pool
 		clients := clients.GetClients(poolID)

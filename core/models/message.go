@@ -10,17 +10,17 @@ import (
 // Message ...
 type Message struct {
 	InstanceID string `json:"instanceID"`
-	ChannelID  string `json:"channelID"`
+	Channel    string `json:"channel"`
 	ID         string `json:"id"`
 	Event      string `json:"event"`
 	Data       any    `json:"message"`
 }
 
-func NewMessage(instanceID, channelID, event, data string) *Message {
+func NewMessage(instanceID, channel, event, data string) *Message {
 	return &Message{
 		ID:         uuid.NewString(),
 		InstanceID: instanceID,
-		ChannelID:  channelID,
+		Channel:    channel,
 		Event:      event,
 		Data:       data,
 	}

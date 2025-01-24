@@ -13,16 +13,16 @@ import (
 type Client struct {
 	id         string
 	instanceID string
-	channelID  string
+	channel    string
 	messages   chan *models.Message
 }
 
 // NewClient ...
-func NewClient(instanceID, channelID string) *Client {
+func NewClient(instanceID, channel string) *Client {
 	return &Client{
 		id:         uuid.NewString(),
 		instanceID: instanceID,
-		channelID:  channelID,
+		channel:    channel,
 		messages:   make(chan *models.Message, 100),
 	}
 }
@@ -35,7 +35,7 @@ func (c *Client) AddMessage(msg *models.Message) {
 func (c *Client) welcome() {
 	welcomeMessage := &models.Message{
 		InstanceID: c.instanceID,
-		ChannelID:  c.channelID,
+		Channel:    c.channel,
 		ID:         uuid.NewString(),
 		Event:      "connected",
 		Data:       "Connected to the server",
