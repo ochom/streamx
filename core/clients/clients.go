@@ -28,6 +28,11 @@ func NewClient(instanceID, channel string) *Client {
 }
 
 func (c *Client) AddMessage(msg *models.Message) {
+	if c == nil {
+		logs.Error("client is nil")
+		return
+	}
+
 	c.messages <- msg
 }
 
