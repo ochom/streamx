@@ -28,20 +28,12 @@ func NewClient(instanceID, channel string) *Client {
 }
 
 func (c *Client) AddMessage(msg *models.Message) {
-	c.messages <- msg
-}
-
-// welcome send the first message
-func (c *Client) welcome() {
-	welcomeMessage := &models.Message{
-		InstanceID: c.instanceID,
-		Channel:    c.channel,
-		ID:         uuid.NewString(),
-		Event:      "connected",
-		Data:       "Connected to the server",
+	if c == nil {
+		logs.Error("client is nil")
+		return
 	}
 
-	c.AddMessage(welcomeMessage)
+	c.messages <- msg
 }
 
 // sendMessage ...
