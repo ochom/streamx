@@ -30,6 +30,7 @@
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-svelte": "^2.46.1",
 		"globals": "^15.14.0",
+		"lucide-svelte": "^0.474.0",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",
 		"prettier-plugin-tailwindcss": "^0.6.10",
@@ -45,6 +46,8 @@
 	},
 	"dependencies": {
 		"@supabase/ssr": "^0.5.2",
-		"@supabase/supabase-js": "^2.48.1"
+		"@supabase/supabase-js": "^2.48.1",
+		"d3-scale": "^4.0.2",
+		"svelte-radix": "1.1.0"
 	}
 }
