@@ -28,10 +28,9 @@ func RunRabbitMQConsumer() {
 		hostName = uuid.New()
 	}
 
-	logs.Info("Starting the server on hostname: %s", hostName)
 	queueName := fmt.Sprintf("streamx-queue-%s", hostName)
 
-	logs.Info("running rabbitmq consumer")
+	logs.Info("[x] running rabbit mq consumers")
 	for i := 0; i < 10; i++ {
 		go func(worker int) {
 			consumer := pubsub.NewConsumer(rabbitUrl, queueName)
@@ -41,7 +40,6 @@ func RunRabbitMQConsumer() {
 			consumer.SetDeleteWhenUnused(true)
 
 			err := consumer.Consume(func(b []byte) {
-				logs.Info("received message: %s", string(b))
 				message := helpers.FromBytes[models.Message](b)
 				poolID := utils.GetPoolID(message.InstanceID, message.Channel)
 				sendMessage(poolID, &message)
