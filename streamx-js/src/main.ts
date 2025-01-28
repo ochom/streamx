@@ -13,7 +13,7 @@ export default class StreamX {
     channelID: string,
     config?: any
   ) {
-    const baseUrl = config?.baseUrl || "https://apis.streamx.io";
+    const baseUrl = config?.baseUrl || "https://api.streamx.co.ke";
     this.es = new EventSource(
       `${baseUrl}/subscribe/${apiKey}/${instanceID}/${channelID}`
     );
