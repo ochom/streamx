@@ -2,12 +2,14 @@ package apps
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/ochom/gutils/env"
 	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
 	"github.com/ochom/gutils/pubsub"
+	"github.com/ochom/gutils/uuid"
 	"github.com/streamx/core/clients"
 	"github.com/streamx/core/models"
 	"github.com/streamx/core/utils"
@@ -21,13 +23,21 @@ var (
 func RunRabbitMQConsumer() {
 	go keepAlive()
 
+	hostName, _ := os.Hostname()
+	if hostName == "" {
+		hostName = uuid.New()
+	}
+
+	logs.Info("Starting the server on hostname: %s", hostName)
+	queueName := fmt.Sprintf("streamx-queue-%s", hostName)
+
 	logs.Info("running rabbitmq consumer")
 	for i := 0; i < 10; i++ {
 		go func(worker int) {
-			consumer := pubsub.NewConsumer(rabbitUrl, "streamx-queue")
+			consumer := pubsub.NewConsumer(rabbitUrl, queueName)
 			consumer.SetExchangeName("STREAMX_EXCHANGE")
 			consumer.SetConnectionName("streamx-consumer")
-			consumer.SetTag(fmt.Sprintf("streamx-consumer-%d", worker))
+			consumer.SetTag(fmt.Sprintf("streamx-consumer-%s-%d", queueName, worker))
 			consumer.SetDeleteWhenUnused(true)
 
 			err := consumer.Consume(func(b []byte) {
