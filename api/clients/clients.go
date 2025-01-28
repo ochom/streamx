@@ -41,17 +41,17 @@ func (c *Client) AddMessage(msg *models.Message) {
 }
 
 // sendMessage ...
-func (c *Client) sendMessage(writer *bufio.Writer, message string) error {
-	_, err := fmt.Fprint(writer, message)
+func (c *Client) sendMessage(w *bufio.Writer, message string) error {
+	_, err := fmt.Fprint(w, message)
 	if err != nil {
 		return err
 	}
 
-	if err := writer.Flush(); err != nil {
+	if err := w.Flush(); err != nil {
 		return err
 	}
 
-	logs.Info("message sent to clientID: %s", c.id)
+	logs.Info("message sent==> client: %s, message: %s", c.id, message)
 	return nil
 }
 
