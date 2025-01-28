@@ -36,7 +36,10 @@ func DeleteChannel(channelID string) {
 	pool.mux.Lock()
 	defer pool.mux.Unlock()
 
-	delete(pool.clients, channelID)
+	clients := pool.clients
+	delete(clients, channelID)
+
+	pool.clients = clients
 }
 
 // GetClients return all clients in every channel

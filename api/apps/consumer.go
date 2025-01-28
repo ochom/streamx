@@ -54,7 +54,7 @@ func keepAlive() {
 			}
 
 			msg := models.NewMessage(instanceID, channelID, "keep-alive", string(helpers.ToBytes(data)))
-			sendMessage(client.GetPoolID(), msg)
+			client.AddMessage(msg)
 		}
 
 		<-time.After(15 * time.Second)
@@ -63,10 +63,14 @@ func keepAlive() {
 
 // sendMessage Send message to all clients in the pool
 func sendMessage(poolID string, message *models.Message) {
-	clients := clients.GetClientsByPoolID(poolID)
-	for _, client := range clients {
+	clientList := clients.GetClientsByPoolID(poolID)
+	if len(clientList) == 0 {
+		clients.DeleteChannel(poolID)
+	}
+
+	for _, client := range clientList {
 		client.AddMessage(message)
 	}
 
-	logs.Info("sending message ==> pool: %s, clients: %d", poolID, len(clients))
+	logs.Info("sending message ==> pool: %s, clients: %d", poolID, len(clientList))
 }

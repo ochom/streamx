@@ -33,11 +33,6 @@ func (c *Channel) RemoveClient(client *Client) {
 	defer c.mux.Unlock()
 
 	delete(c.clients, client.id)
-
-	// if no remaining client, delete the channel
-	if len(c.clients) == 0 {
-		DeleteChannel(c.id)
-	}
 }
 
 // GetClients ...
