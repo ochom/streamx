@@ -1,9 +1,4 @@
-export type callBackFunc = (event: EventData) => void;
-export type EventData = {
-  id: string;
-  event: string;
-  data: string;
-};
+export type callBackFunc = (event: any) => void;
 
 export default class StreamX {
   es: EventSource;
@@ -25,13 +20,7 @@ export default class StreamX {
     }
 
     this.es.addEventListener(eventName, (event: MessageEvent) => {
-      const data: EventData = {
-        id: event.lastEventId,
-        event: event.type,
-        data: event.data,
-      };
-
-      callback(data);
+      callback(event?.data || "{}");
     });
   }
 

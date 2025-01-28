@@ -35,12 +35,7 @@ var StreamX = class {
       eventName = "message";
     }
     this.es.addEventListener(eventName, (event) => {
-      const data = {
-        id: event.lastEventId,
-        event: event.type,
-        data: event.data
-      };
-      callback(data);
+      callback(event?.data || "{}");
     });
   }
   close() {

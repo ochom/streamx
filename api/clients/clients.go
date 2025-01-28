@@ -56,25 +56,12 @@ func (c *Client) sendMessage(writer *bufio.Writer, message string) error {
 }
 
 func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Writer) {
-	stop := make(chan int, 1)
-
-	go func() {
-		for {
-			select {
-			case msg := <-c.messages:
-				if err := c.sendMessage(w, msg.Format()); err != nil {
-					logs.Error("sending message to client: %s", err.Error())
-					stop <- 1
-					return
-				}
-			case <-ctx.Done():
-				logs.Info("client disconnected: %s", c.id)
-				stop <- 1
-				return
-			}
+	for msg := range c.messages {
+		if err := c.sendMessage(w, msg.Format()); err != nil {
+			logs.Error("sending message to client: %s, err: %s", c.id, err.Error())
+			break
 		}
-	}()
+	}
 
-	<-stop
 	channel.RemoveClient(c)
 }
