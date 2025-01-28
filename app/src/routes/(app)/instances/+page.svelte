@@ -1,10 +1,14 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table/index.js';
+	import { toast } from 'svelte-sonner';
 	import Icon from '@iconify/svelte';
 	import moment from 'moment';
 	const { data } = $props();
 
-	console.log(data);
+	const handleCopy = (value: string) => {
+		navigator.clipboard.writeText(value);
+		toast.success('Instance ID Copied to clipboard');
+	};
 </script>
 
 <main>
@@ -28,7 +32,11 @@
 					<Table.Cell>
 						<div class="flex">
 							{instance.id}
-							<Icon icon="akar-icons:copy" class="text-muted-foreground h-5 w-5 cursor-pointer" />
+							<Icon
+								onclick={() => handleCopy(instance.id)}
+								icon="akar-icons:copy"
+								class="text-muted-foreground h-5 w-5 cursor-pointer"
+							/>
 						</div>
 					</Table.Cell>
 					<Table.Cell>{moment(instance.created_at).format('lll')}</Table.Cell>
