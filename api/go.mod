@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/google/uuid v1.5.0
-	github.com/ochom/gutils v1.7.8
+	github.com/ochom/gutils v1.8.4
 	github.com/valyala/fasthttp v1.51.0
 	gorm.io/gorm v1.25.10
 )

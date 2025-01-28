@@ -4,24 +4,24 @@ import (
 	"errors"
 
 	"github.com/ochom/gutils/sqlr"
-	"gorm.io/gorm"
 )
 
 // ValidateSubscriber ...
 func ValidateSubscriber(apiKey, instanceID string) error {
-	// validate api key
-	user, err := sqlr.FindOne[User](func(db *gorm.DB) *gorm.DB {
-		return db.Where("api_key = ?", apiKey)
-	})
+	query := `
+		SELECT 
+			i.id, i.name, i.user_id, u.api_key 
+		FROM 
+			instances i
+		LEFT 
+			JOIN users u ON i.user_id = u.id
+		WHERE 
+			i.instance_id = ? AND u.api_key = ?
+		LIMIT 1
+	`
 
-	if err != nil {
-		return errors.New("unauthorized, invalid api key")
-	}
-
-	// check if this user owns the instance
-	query := "SELECT * FROM instances WHERE id = ? AND user_id = ? LIMIT 1"
 	var instance *Instance
-	if err := sqlr.GORM().Raw(query, instanceID, user.ID).Scan(&instance).Error; err != nil {
+	if err := sqlr.GORM().Raw(query, instanceID, apiKey).Scan(&instance).Error; err != nil {
 		return errors.New("unauthorized, invalid instance")
 	}
 
