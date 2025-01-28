@@ -68,5 +68,5 @@ func sendMessage(poolID string, message *models.Message) {
 		client.AddMessage(message)
 	}
 
-	logs.Info("sending message clients ==> pool: %s, clients: %d", poolID, len(clients))
+	logs.Info("sending message ==> pool: %s, clients: %d", poolID, len(clients))
 }
