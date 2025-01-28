@@ -6,7 +6,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/google/uuid"
+	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
+	"github.com/ochom/gutils/pubsub"
 	"github.com/streamx/core/clients"
 	"github.com/streamx/core/models"
 	"github.com/valyala/fasthttp"
@@ -73,8 +75,15 @@ func RunHttpServer() {
 			message.Event = "message"
 		}
 
-		// add message to queue
-		broadcastMessage(&message)
+		// push message to queue
+		publisher := pubsub.NewPublisher(rabbitUrl, "STREAMX_EXCHANGE", "streamx")
+		publisher.SetExchangeType(pubsub.FanOut)
+		publisher.SetConnectionName("streamx-producer")
+
+		if err := publisher.Publish(helpers.ToBytes(message)); err != nil {
+			logs.Error("failed to publish message: %s", err.Error())
+		}
+
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 

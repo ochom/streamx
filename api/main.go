@@ -32,11 +32,12 @@ func init() {
 }
 
 func main() {
-	// Run the consumer
-	go apps.RunConsumer()
 
 	// Run the HTTP server
 	go apps.RunHttpServer()
+
+	// Run RabbitMQ consumer
+	go apps.RunRabbitMQConsumer()
 
 	// wait for stop signal
 	stop := make(chan os.Signal, 1)
