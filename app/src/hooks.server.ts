@@ -2,7 +2,8 @@ import { createServerClient } from '@supabase/ssr';
 import { type Handle, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { connectToDB } from '$lib/db';
 
 const supabase: Handle = async ({ event, resolve }) => {
 	/**
@@ -79,4 +80,14 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle: Handle = sequence(supabase, authGuard);
+const database: Handle = async ({ event, resolve }) => {
+	const dbConn = await connectToDB();
+	event.locals.dbConn = dbConn;
+
+	const response = await resolve(event);
+	dbConn.release();
+
+	return response;
+};
+
+export const handle: Handle = sequence(supabase, authGuard, database);

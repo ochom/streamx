@@ -1,7 +1,15 @@
 <script>
 	import { DashboardMainNav, Search, UserNav } from '$lib/components/dashboard';
 	import '../../app.css';
-	let { children } = $props();
+	let { data, children } = $props();
+	let { supabase, user } = $derived(data);
+
+	const logout = async () => {
+		const { error } = await supabase.auth.signOut();
+		if (error) {
+			console.error(error);
+		}
+	};
 </script>
 
 <svelte:head>
@@ -13,11 +21,11 @@
 		<div class="flex h-16 items-center px-4">
 			<div class="font-bold">StreamX</div>
 			<div class="mx-6">
-				<DashboardMainNav />
+				<DashboardMainNav {logout} />
 			</div>
 			<div class="ml-auto flex items-center space-x-4">
 				<Search />
-				<UserNav />
+				<UserNav {user} />
 			</div>
 		</div>
 	</div>

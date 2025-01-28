@@ -2,6 +2,8 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+
+	let { user } = $props();
 </script>
 
 <DropdownMenu.Root>
@@ -16,8 +18,8 @@
 	<DropdownMenu.Content class="w-56" align="end">
 		<DropdownMenu.Label class="font-normal">
 			<div class="flex flex-col space-y-1">
-				<p class="text-sm font-medium leading-none">shadcn</p>
-				<p class="text-muted-foreground text-xs leading-none">m@example.com</p>
+				<p class="text-sm font-medium leading-none">{user?.name || 'User'}</p>
+				<p class="text-muted-foreground text-xs leading-none">{user?.email}</p>
 			</div>
 		</DropdownMenu.Label>
 		<DropdownMenu.Separator />

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { afterNavigate } from '$app/navigation';
 
+	const { logout } = $props();
+
 	let currentRoute = $state();
 	afterNavigate((navigation) => {
 		currentRoute = navigation.to?.url.pathname as string;
