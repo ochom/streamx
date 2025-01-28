@@ -11,22 +11,26 @@ import (
 )
 
 type Client struct {
-	id         string
-	instanceID string
-	channel    string
-	messages   chan *models.Message
+	id       string
+	poolID   string
+	messages chan *models.Message
 }
 
 // NewClient ...
-func NewClient(instanceID, channel string) *Client {
+func NewClient(poolID string) *Client {
 	return &Client{
-		id:         uuid.NewString(),
-		instanceID: instanceID,
-		channel:    channel,
-		messages:   make(chan *models.Message, 100),
+		id:       uuid.NewString(),
+		poolID:   poolID,
+		messages: make(chan *models.Message, 100),
 	}
 }
 
+// GetPoolID ...
+func (c *Client) GetPoolID() string {
+	return c.poolID
+}
+
+// AddMessage ...
 func (c *Client) AddMessage(msg *models.Message) {
 	if c == nil {
 		logs.Error("client is nil")
@@ -47,11 +51,11 @@ func (c *Client) sendMessage(writer *bufio.Writer, message string) error {
 		return err
 	}
 
-	logs.Info("message sent to client: %s", message)
+	logs.Info("message sent to clientID: %s", c.id)
 	return nil
 }
 
-func (c *Client) Listen(ctx *fasthttp.RequestCtx, w *bufio.Writer) {
+func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Writer) {
 	stop := make(chan int, 1)
 
 	go func() {
@@ -59,7 +63,7 @@ func (c *Client) Listen(ctx *fasthttp.RequestCtx, w *bufio.Writer) {
 			select {
 			case msg := <-c.messages:
 				if err := c.sendMessage(w, msg.Format()); err != nil {
-					logs.Error("sending message to client: %s", err)
+					logs.Error("sending message to client: %s", err.Error())
 					stop <- 1
 					return
 				}
@@ -72,5 +76,5 @@ func (c *Client) Listen(ctx *fasthttp.RequestCtx, w *bufio.Writer) {
 	}()
 
 	<-stop
-	RemoveClient(c)
+	channel.RemoveClient(c)
 }

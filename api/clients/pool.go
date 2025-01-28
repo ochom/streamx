@@ -1,72 +1,73 @@
 package clients
 
 import (
-	"slices"
 	"sync"
-
-	"github.com/ochom/gutils/logs"
-	"github.com/streamx/core/utils"
 )
 
-var clientPool = make(map[string][]*Client)
-var mux sync.Mutex
-
-// AddClient ...
-func AddClient(client *Client) {
-	mux.Lock()
-	defer mux.Unlock()
-
-	poolID := utils.GetPoolID(client.instanceID, client.channel)
-	logs.Info("adding new client: %s to pool: %s", client.id, poolID)
-	if _, ok := clientPool[poolID]; !ok {
-		clientPool[poolID] = []*Client{}
-	}
-
-	clientPool[poolID] = append(clientPool[poolID], client)
+type ConnectionPool struct {
+	clients map[string]*Channel
+	mux     sync.Mutex
 }
 
-// RemoveClient ...
-func RemoveClient(client *Client) {
-	mux.Lock()
-	defer mux.Unlock()
+var pool *ConnectionPool
 
-	poolID := utils.GetPoolID(client.instanceID, client.channel)
-	logs.Info("removing client: %s from pool: %s", client.id, poolID)
-	if _, ok := clientPool[poolID]; !ok {
-		return
-	}
-
-	clients := slices.DeleteFunc(clientPool[poolID], func(c *Client) bool {
-		return c.id == client.id
-	})
-
-	if len(clients) == 0 {
-		delete(clientPool, poolID)
-	} else {
-		clientPool[poolID] = clients
+func init() {
+	pool = &ConnectionPool{
+		clients: make(map[string]*Channel),
 	}
 }
 
-// GetClients ...
-func GetClients(poolID string) []*Client {
-	mux.Lock()
-	defer mux.Unlock()
-	if _, ok := clientPool[poolID]; !ok {
+// GetChannel ...
+func GetChannel(channelID string) *Channel {
+	pool.mux.Lock()
+	defer pool.mux.Unlock()
+
+	if _, ok := pool.clients[channelID]; !ok {
+		channel := NewChannel(channelID)
+		pool.clients[channelID] = channel
+		return channel
+	}
+
+	return pool.clients[channelID]
+}
+
+// DeleteChannel ...
+func DeleteChannel(channelID string) {
+	pool.mux.Lock()
+	defer pool.mux.Unlock()
+
+	delete(pool.clients, channelID)
+}
+
+// GetClients return all clients in every channel
+func GetClients() []*Client {
+	pool.mux.Lock()
+	defer pool.mux.Unlock()
+
+	var clients []*Client
+	for _, channel := range pool.clients {
+		for _, client := range channel.clients {
+			clients = append(clients, client)
+		}
+	}
+
+	return clients
+}
+
+// GetClientsByPoolID ...
+func GetClientsByPoolID(poolID string) []*Client {
+	pool.mux.Lock()
+	defer pool.mux.Unlock()
+
+	channel, ok := pool.clients[poolID]
+	if !ok {
 		return []*Client{}
 	}
 
-	return clientPool[poolID]
-}
-
-// GetPools ...
-func GetPools() []string {
-	mux.Lock()
-	defer mux.Unlock()
-
-	pools := []string{}
-	for poolID := range clientPool {
-		pools = append(pools, poolID)
+	clients := []*Client{}
+	for _, client := range channel.clients {
+		clients = append(clients, client)
 	}
 
-	return pools
+	return clients
 }

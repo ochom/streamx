@@ -11,6 +11,7 @@ import (
 	"github.com/ochom/gutils/pubsub"
 	"github.com/streamx/core/clients"
 	"github.com/streamx/core/models"
+	"github.com/streamx/core/utils"
 	"github.com/valyala/fasthttp"
 )
 
@@ -41,11 +42,13 @@ func RunHttpServer() {
 		ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
 		ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
-		client := clients.NewClient(c.Params("instanceID"), c.Params("channelID"))
-		clients.AddClient(client)
+		channelID := utils.GetPoolID(c.Params("instanceID"), c.Params("channelID"))
+		channel := clients.GetChannel(channelID)
+		client := clients.NewClient(channelID)
+		channel.AddClient(client)
 
 		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
-			client.Listen(ctx, w)
+			client.Listen(ctx, channel, w)
 		}))
 		return nil
 	})
