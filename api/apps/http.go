@@ -75,20 +75,23 @@ func RunHttpServer() {
 			message.Event = "message"
 		}
 
-		// push message to queue
-		publisher := pubsub.NewPublisher(rabbitUrl, "STREAMX_EXCHANGE", "streamx")
-		publisher.SetExchangeType(pubsub.FanOut)
-		publisher.SetConnectionName("streamx-producer")
-
-		if err := publisher.Publish(helpers.ToBytes(message)); err != nil {
-			logs.Error("failed to publish message: %s", err.Error())
-		}
-
+		go postMessage(message)
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
 	logs.Info("Starting the HTTP server")
 	if err := app.Listen(":8080"); err != nil {
 		panic(err)
+	}
+}
+
+// postMessage push message to queue
+func postMessage(message models.Message) {
+	publisher := pubsub.NewPublisher(rabbitUrl, "STREAMX_EXCHANGE")
+	publisher.SetExchangeType(pubsub.FanOut)
+	publisher.SetConnectionName("streamx-producer")
+
+	if err := publisher.Publish(helpers.ToBytes(message)); err != nil {
+		logs.Error("failed to publish message: %s", err.Error())
 	}
 }
