@@ -1,3 +1,3 @@
 <script lang="ts"></script>
 
-<main>Hello instances</main>
+<main>Hello clients</main>
