@@ -16,7 +16,7 @@ func ValidateSubscriber(apiKey, instanceID string) error {
 		LEFT 
 			JOIN users u ON i.user_id = u.id
 		WHERE 
-			i.instance_id = ? AND u.api_key = ?
+			i.id = ? AND u.api_key = ?
 		LIMIT 1
 	`
 

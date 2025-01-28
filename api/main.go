@@ -9,11 +9,13 @@ import (
 	"github.com/ochom/gutils/sqlr"
 	"github.com/streamx/core/apps"
 	"github.com/streamx/core/models"
+	"gorm.io/gorm/logger"
 )
 
 func init() {
 	err := sqlr.Init(&sqlr.Config{
-		Url: env.Get("DATABASE_URL"),
+		LogLevel: logger.Error,
+		Url:      env.Get("DATABASE_URL"),
 	})
 
 	if err != nil {
