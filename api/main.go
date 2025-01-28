@@ -33,6 +33,13 @@ func init() {
 
 func main() {
 
+	hostName, err := os.Hostname()
+	if err != nil {
+		logs.Error("no hostname: %s", err.Error())
+	}
+
+	logs.Info("Starting the server on hostname: %s", hostName)
+
 	// Run the HTTP server
 	go apps.RunHttpServer()
 
