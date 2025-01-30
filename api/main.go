@@ -32,7 +32,6 @@ func init() {
 }
 
 func main() {
-
 	// Run the HTTP server
 	go apps.RunHttpServer()
 
@@ -45,5 +44,5 @@ func main() {
 
 	<-stop
 
-	logs.Info("Shutting down the server")
+	logs.Info("[X] Shutting down the server")
 }

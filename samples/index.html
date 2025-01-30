@@ -9,18 +9,33 @@
 
 <body>
   <h1>Server-Sent Events Listener</h1>
+  <h1 id="user_balance"></h1>
   <h2>Our Message: <b id="message"></b></h2>
 
   <script type="module">
-    import Stream from 'https://cdn.jsdelivr.net/npm/streamx-js@1.0.4';
-    const stream = new Stream('67936f09181d9b0262116c15', 'b06ec5d2-7e98-4608-83c7-a59100549aa2', '456', {
-      baseUrl: 'http://localhost:8080'
-    })
+    import Stream from 'https://cdn.jsdelivr.net/npm/streamx-js@1.0.5';
+    const stream = new Stream('6793a7f3181da8429e2db19c', 'd67e4f56-cd45-4f0d-b5c6-6b6fdffe2cf6', '6797df26181ea387f20654df')
 
     const addNewMessage = (message) => {
       const element = document.getElementById('message');
       element.innerHTML = message;
     }
+
+    const setBalance = (message) => {
+      const element = document.getElementById('user_balance');
+      console.log('Message:', message);
+      const data = JSON.parse(message);
+
+      element.innerHTML = `Your balance is: ${data.balance}`;
+    }
+
+    stream.on('credit', (message) => {
+      setBalance(message);
+    })
+
+    stream.on('debit', (message) => {
+      setBalance(message);
+    })
 
     stream.on('keep-alive', (data) => {
       console.log('Keep-alive received:', data);

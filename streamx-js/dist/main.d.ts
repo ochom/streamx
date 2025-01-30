@@ -1,9 +1,4 @@
-type callBackFunc = (event: EventData) => void;
-type EventData = {
-    id: string;
-    event: string;
-    data: string;
-};
+type callBackFunc = (event: any) => void;
 declare class StreamX {
     es: EventSource;
     constructor(apiKey: string, instanceID: string, channelID: string, config?: any);
@@ -11,4 +6,4 @@ declare class StreamX {
     close(): void;
 }
 
-export { type EventData, type callBackFunc, StreamX as default };
+export { type callBackFunc, StreamX as default };

@@ -40,41 +40,29 @@ func (c *Client) AddMessage(msg *models.Message) {
 	c.messages <- msg
 }
 
-// sendMessage ...
-func (c *Client) sendMessage(writer *bufio.Writer, message string) error {
-	_, err := fmt.Fprint(writer, message)
-	if err != nil {
-		return err
-	}
-
-	if err := writer.Flush(); err != nil {
-		return err
-	}
-
-	logs.Info("message sent to clientID: %s", c.id)
-	return nil
-}
-
+// Listen listen to all messages sent to this client
 func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Writer) {
-	stop := make(chan int, 1)
-
-	go func() {
-		for {
-			select {
-			case msg := <-c.messages:
-				if err := c.sendMessage(w, msg.Format()); err != nil {
-					logs.Error("sending message to client: %s", err.Error())
-					stop <- 1
-					return
-				}
-			case <-ctx.Done():
-				logs.Info("client disconnected: %s", c.id)
-				stop <- 1
-				return
-			}
+	for msg := range c.messages {
+		_, err := fmt.Fprint(w, msg.Format())
+		if err != nil {
+			logs.Error("sending message to client: %s, err: %s", c.id, err.Error())
+			break
 		}
-	}()
 
-	<-stop
+		if err := w.Flush(); err != nil {
+			logs.Error("flushing message to client: %s, err: %s", c.id, err.Error())
+			break
+		}
+
+		switch msg.Event {
+		case "keep-alive":
+			logs.Debug("message sent==> client: %s, message: %s", c.id, msg.JSON())
+		case "welcome":
+			logs.Warn("message sent==> client: %s, message: %s", c.id, msg.JSON())
+		default:
+			logs.Info("message sent==> client: %s, message: %s", c.id, msg.JSON())
+		}
+	}
+
 	channel.RemoveClient(c)
 }

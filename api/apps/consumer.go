@@ -2,12 +2,14 @@ package apps
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/ochom/gutils/env"
 	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
 	"github.com/ochom/gutils/pubsub"
+	"github.com/ochom/gutils/uuid"
 	"github.com/streamx/core/clients"
 	"github.com/streamx/core/models"
 	"github.com/streamx/core/utils"
@@ -21,17 +23,23 @@ var (
 func RunRabbitMQConsumer() {
 	go keepAlive()
 
-	logs.Info("running rabbitmq consumer")
+	hostName, _ := os.Hostname()
+	if hostName == "" {
+		hostName = uuid.New()
+	}
+
+	queueName := fmt.Sprintf("streamx-queue-%s", hostName)
+
+	logs.Info("[x] running rabbit mq consumers")
 	for i := 0; i < 10; i++ {
 		go func(worker int) {
-			consumer := pubsub.NewConsumer(rabbitUrl, "streamx-queue")
+			consumer := pubsub.NewConsumer(rabbitUrl, queueName)
 			consumer.SetExchangeName("STREAMX_EXCHANGE")
 			consumer.SetConnectionName("streamx-consumer")
-			consumer.SetTag(fmt.Sprintf("streamx-consumer-%d", worker))
+			consumer.SetTag(fmt.Sprintf("streamx-consumer-%s-%d", queueName, worker))
 			consumer.SetDeleteWhenUnused(true)
 
 			err := consumer.Consume(func(b []byte) {
-				logs.Info("received message: %s", string(b))
 				message := helpers.FromBytes[models.Message](b)
 				poolID := utils.GetPoolID(message.InstanceID, message.Channel)
 				sendMessage(poolID, &message)
@@ -46,7 +54,8 @@ func RunRabbitMQConsumer() {
 
 // keepAlive ...
 func keepAlive() {
-	for {
+	tick := time.NewTicker(30 * time.Second)
+	for range tick.C {
 		for _, client := range clients.GetClients() {
 			instanceID, channelID := utils.GetPoolDetails(client.GetPoolID())
 			data := map[string]string{
@@ -56,8 +65,6 @@ func keepAlive() {
 			msg := models.NewMessage(instanceID, channelID, "keep-alive", string(helpers.ToBytes(data)))
 			client.AddMessage(msg)
 		}
-
-		<-time.After(15 * time.Second)
 	}
 }
 

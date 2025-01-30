@@ -13,7 +13,7 @@ type Message struct {
 	Channel    string `json:"channel"`
 	ID         string `json:"id"`
 	Event      string `json:"event"`
-	Data       any    `json:"message"`
+	Data       any    `json:"data"`
 }
 
 func NewMessage(instanceID, channel, event, data string) *Message {
@@ -29,6 +29,10 @@ func NewMessage(instanceID, channel, event, data string) *Message {
 func (m Message) Format() string {
 	data := getData(m.Data)
 	return fmt.Sprintf("id: %s\nevent: %s\ndata: %s\n\n", m.ID, m.Event, data)
+}
+
+func (m Message) JSON() string {
+	return string(helpers.ToBytes(m))
 }
 
 func getData(data any) string {

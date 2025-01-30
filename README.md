@@ -47,13 +47,13 @@ const stream = new Stream('apiKey', 'instanceID', 'channelName')
 
 
 // add events to listen to
-stream.on('eventName', ({event, id, data})=>{
-  console.log(event, data)
+stream.on('eventName', (data)=>{
+  console.log(data)
 })
 
 
-stream.on('eventName2', ({event, id, data})=>{
-  console.log(event, data)
+stream.on('eventName2', (data)=>{
+  console.log(data)
 })
 
 

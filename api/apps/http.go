@@ -47,6 +47,9 @@ func RunHttpServer() {
 		client := clients.NewClient(channelID)
 		channel.AddClient(client)
 
+		// send first message to this client
+		client.AddMessage(models.NewMessage(c.Params("instanceID"), c.Params("channelID"), "welcome", "Welcome to StreamX"))
+
 		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
 			client.Listen(ctx, channel, w)
 		}))
@@ -82,7 +85,7 @@ func RunHttpServer() {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	logs.Info("Starting the HTTP server")
+	logs.Info("[X] Starting the HTTP server")
 	if err := app.Listen(":8080"); err != nil {
 		panic(err)
 	}
