@@ -5,18 +5,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/ochom/gutils/env"
 	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
 	"github.com/ochom/gutils/pubsub"
 	"github.com/ochom/gutils/uuid"
 	"github.com/streamx/core/clients"
+	"github.com/streamx/core/constants"
 	"github.com/streamx/core/models"
 	"github.com/streamx/core/utils"
-)
-
-var (
-	rabbitUrl = env.Get("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/")
 )
 
 // RunRabbitMQConsumer  consumes messages from rabbit mq
@@ -33,7 +29,7 @@ func RunRabbitMQConsumer() {
 	logs.Info("[x] running rabbit mq consumers")
 	for i := 0; i < 10; i++ {
 		go func(worker int) {
-			consumer := pubsub.NewConsumer(rabbitUrl, queueName)
+			consumer := pubsub.NewConsumer(constants.RabbitUrl, queueName)
 			consumer.SetExchangeName("STREAMX_EXCHANGE")
 			consumer.SetConnectionName("streamx-consumer")
 			consumer.SetTag(fmt.Sprintf("streamx-consumer-%s-%d", queueName, worker))
