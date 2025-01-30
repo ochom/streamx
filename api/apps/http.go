@@ -47,6 +47,9 @@ func RunHttpServer() {
 		client := clients.NewClient(channelID)
 		channel.AddClient(client)
 
+		// send first message to this client
+		client.AddMessage(models.NewMessage(c.Params("instanceID"), c.Params("channelID"), "welcome", "Welcome to StreamX"))
+
 		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
 			client.Listen(ctx, channel, w)
 		}))

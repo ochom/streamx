@@ -54,7 +54,8 @@ func RunRabbitMQConsumer() {
 
 // keepAlive ...
 func keepAlive() {
-	for {
+	tick := time.NewTicker(30 * time.Second)
+	for range tick.C {
 		for _, client := range clients.GetClients() {
 			instanceID, channelID := utils.GetPoolDetails(client.GetPoolID())
 			data := map[string]string{
@@ -64,8 +65,6 @@ func keepAlive() {
 			msg := models.NewMessage(instanceID, channelID, "keep-alive", string(helpers.ToBytes(data)))
 			client.AddMessage(msg)
 		}
-
-		<-time.After(15 * time.Second)
 	}
 }
 
