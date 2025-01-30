@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/models"
 	"github.com/valyala/fasthttp"
@@ -55,7 +54,14 @@ func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Wri
 			break
 		}
 
-		logs.Info("message sent==> client: %s, message: %s", c.id, string(helpers.ToBytes(msg)))
+		switch msg.Event {
+		case "keep-alive":
+			logs.Debug("message sent==> client: %s, message: %s", c.id, msg.JSON())
+		case "welcome":
+			logs.Warn("message sent==> client: %s, message: %s", c.id, msg.JSON())
+		default:
+			logs.Info("message sent==> client: %s, message: %s", c.id, msg.JSON())
+		}
 	}
 
 	channel.RemoveClient(c)
