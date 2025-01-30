@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/models"
 	"github.com/valyala/fasthttp"
@@ -40,27 +41,20 @@ func (c *Client) AddMessage(msg *models.Message) {
 	c.messages <- msg
 }
 
-// sendMessage ...
-func (c *Client) sendMessage(w *bufio.Writer, message string) error {
-	_, err := fmt.Fprint(w, message)
-	if err != nil {
-		return err
-	}
-
-	if err := w.Flush(); err != nil {
-		return err
-	}
-
-	logs.Info("message sent==> client: %s, message: %s", c.id, message)
-	return nil
-}
-
 func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Writer) {
 	for msg := range c.messages {
-		if err := c.sendMessage(w, msg.Format()); err != nil {
+		_, err := fmt.Fprint(w, msg.Format())
+		if err != nil {
 			logs.Error("sending message to client: %s, err: %s", c.id, err.Error())
 			break
 		}
+
+		if err := w.Flush(); err != nil {
+			logs.Error("flushing message to client: %s, err: %s", c.id, err.Error())
+			break
+		}
+
+		logs.Info("message sent==> client: %s, message: %s", c.id, string(helpers.ToBytes(msg)))
 	}
 
 	channel.RemoveClient(c)
