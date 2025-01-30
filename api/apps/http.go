@@ -43,12 +43,10 @@ func RunHttpServer() {
 		ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
 		channelID := utils.GetPoolID(c.Params("instanceID"), c.Params("channelID"))
-		channel := clients.GetChannel(channelID)
 		client := clients.NewClient(channelID)
-		channel.AddClient(client)
 
-		// send first message to this client
-		client.AddMessage(models.NewMessage(c.Params("instanceID"), c.Params("channelID"), "welcome", "Welcome to StreamX"))
+		channel := clients.GetChannel(channelID)
+		channel.AddClient(client)
 
 		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
 			client.Listen(ctx, channel, w)

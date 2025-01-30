@@ -57,13 +57,7 @@ func keepAlive() {
 	tick := time.NewTicker(30 * time.Second)
 	for range tick.C {
 		for _, client := range clients.GetClients() {
-			instanceID, channelID := utils.GetPoolDetails(client.GetPoolID())
-			data := map[string]string{
-				"time": time.Now().Format(time.RFC3339),
-			}
-
-			msg := models.NewMessage(instanceID, channelID, "keep-alive", string(helpers.ToBytes(data)))
-			client.AddMessage(msg)
+			client.KeepAlive()
 		}
 	}
 }

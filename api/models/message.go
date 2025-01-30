@@ -16,7 +16,7 @@ type Message struct {
 	Data       any    `json:"data"`
 }
 
-func NewMessage(instanceID, channel, event, data string) *Message {
+func NewMessage(instanceID, channel, event string, data any) *Message {
 	return &Message{
 		ID:         uuid.NewString(),
 		InstanceID: instanceID,
