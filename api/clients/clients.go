@@ -41,6 +41,7 @@ func (c *Client) AddMessage(msg *models.Message) {
 	c.messages <- msg
 }
 
+// Listen listen to all messages sent to this client
 func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Writer) {
 	for msg := range c.messages {
 		_, err := fmt.Fprint(w, msg.Format())
