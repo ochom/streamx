@@ -28,7 +28,7 @@ func (u *User) AfterFind(tx *gorm.DB) (err error) {
 	}
 
 	if u.PublicKey == "" {
-		u.PublicKey = uuid.NewString()
+		u.PublicKey = u.ApiKey
 		tx.Save(u)
 	}
 
