@@ -21,7 +21,10 @@
 
 <p>Your instances</p>
 
-<button class="btn btn-primary" onclick="window.location.href='/instances/create'">Create Instance</button>
+<button class="btn btn-outline-secondary" onclick="window.location.href='/instances/create'">
+  <i class="bi bi-plus"></i>
+  Create Instance
+</button>
 
 <div class="row mt-3">
   {% for item in instances %}
