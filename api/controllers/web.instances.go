@@ -9,14 +9,15 @@ import (
 
 // CreateInstance ...
 func CreateInstance(c *fiber.Ctx) error {
+	return c.Render("instances_create", fiber.Map{}, "layouts/main")
+}
+
+// DoCreateInstance ...
+func DoCreateInstance(c *fiber.Ctx) error {
+	user := c.Locals("user").(*models.User)
 	var req map[string]string
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": err.Error()})
-	}
-
-	user, err := getToken(c)
-	if err != nil {
-		return err
 	}
 
 	if req["name"] == "" {
@@ -49,10 +50,7 @@ func GetInstances(c *fiber.Ctx) error {
 
 // DeleteInstance ...
 func DeleteInstance(c *fiber.Ctx) error {
-	user, err := getToken(c)
-	if err != nil {
-		return err
-	}
+	user := c.Locals("user").(*models.User)
 
 	instanceID := c.Params("instanceID")
 	if instanceID == "" {
@@ -65,5 +63,5 @@ func DeleteInstance(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "failed to delete instance"})
 	}
 
-	return c.JSON(fiber.Map{"status": "ok"})
+	return nil
 }

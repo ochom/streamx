@@ -1,0 +1,43 @@
+<script>
+  function createInstance(name, description) {
+    fetch('/instances/create', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: name,
+        description: description
+      })
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 'ok') {
+          toast('Instance created successfully')
+          setTimeout(() => {
+            window.location.href = '/instances'
+          }, 1000)
+        } else {
+          toast('Failed to create instance')
+        }
+      })
+  }
+</script>
+
+<p>Create a instances</p>
+<div class="card p-3" style="max-width: 500px;">
+  <form class="row g-3">
+    <div>
+      <label for="name" class="form-label">Instance Name</label>
+      <input type="text" class="form-control" id="name" placeholder="e.g Payments" />
+    </div>
+
+    <div>
+      <label for="description" class="form-label">Description</label>
+      <textarea class="form-control" id="description" placeholder="e.g This instance is responsible for handling payments"></textarea>
+    </div>
+
+    <button type="button" class="btn btn-primary" onclick="createInstance(document.getElementById('name').value, document.getElementById('description').value)">Create</button>
+  </form>
+</div>

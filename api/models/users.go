@@ -12,11 +12,12 @@ import (
 // User  ...
 type User struct {
 	ID        uuid.UUID `json:"id" gorm:"primaryKey;default:uuid_generate_v4()"`
-	ApiKey    string    `json:"api_key" gorm:"uniqueIndex"`
-	PublicKey string    `json:"public_key" gorm:"uniqueIndex"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email" gorm:"unique"`
 	Password  string    `json:"-"`
+	IsAdmin   bool      `json:"is_admin" gorm:"default:false"`
+	ApiKey    string    `json:"api_key" gorm:"uniqueIndex"`
+	PublicKey string    `json:"public_key" gorm:"uniqueIndex"`
 	CreatedAt time.Time `json:"created_at"`
 }
 

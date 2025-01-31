@@ -1,10 +1,36 @@
+<script>
+  async function deleteInstance(name, id) {
+    const res = confirm('Are you sure you want to delete: ' + name + '?')
+    if (res) {
+      const response = await fetch('/instances/' + id, {
+        method: 'DELETE'
+      })
+  
+      if (response.status !== 200) {
+        toast('Failed to delete instance')
+        return
+      }
+  
+      toast('Instance deleted successfully')
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
+    }
+  }
+</script>
+
 <p>Your instances</p>
 
-<div class="row">
+<button class="btn btn-primary" onclick="window.location.href='/instances/create'">Create Instance</button>
+
+<div class="row mt-3">
   {% for item in instances %}
     <div class="col-4 mb-3">
       <div class="card">
-        <div class="card-header">{{ item.Name }}</div>
+        <div class="card-header">
+          {{ item.Name }}
+          <button onclick="deleteInstance('{{ item.Name }}', '{{ item.ID }}')" class="btn btn-sm btn-danger float-end">Delete</button>
+        </div>
         <div class="card-body">
           <p class="card-title">{{ item.Description }}</p>
           <p class="card-title">

@@ -35,7 +35,13 @@ func RunHttpServer() {
 		// authenticate every request
 		r.Use(controllers.WebAuth)
 		r.Get("/", controllers.Dashboard)
+
+		// instances
 		r.Get("/instances", controllers.GetInstances)
+		r.Get("/instances/create", controllers.CreateInstance)
+		r.Post("/instances/create", controllers.DoCreateInstance)
+		r.Delete("/instances/:instanceID", controllers.DeleteInstance)
+
 		r.Get("/settings", controllers.Settings)
 		r.Get("/logout", controllers.Logout)
 	})
@@ -46,12 +52,6 @@ func RunHttpServer() {
 	app.Route("/profiles", func(r fiber.Router) {
 		r.Post("/", controllers.CreateProfile)
 		r.Get("/", controllers.GetProfile)
-	})
-
-	app.Route("/instances", func(r fiber.Router) {
-		r.Post("/", controllers.CreateInstance)
-		r.Get("/", controllers.GetInstances)
-		r.Delete("/:instanceID", controllers.DeleteInstance)
 	})
 
 	logs.Info("[X] Starting the HTTP server")
