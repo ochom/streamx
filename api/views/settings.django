@@ -1,3 +1,9 @@
+<script>
+  function hideText(text) {
+    return text.slice(0, 4) + '********' + text.slice(-4)
+  }
+</script>
+
 <div class="">
   <h6>API keys and Credentials</h6>
   <p>Manage your API keys and credentials. These keys are used to authenticate your requests to the StreamX API.</p>
@@ -27,7 +33,10 @@
           <div class="card-header">Private API Key</div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
-              {{ data.ApiKey }}
+              <script>
+                document.write(hideText('{{ data.ApiKey }}'))
+              </script>
+              <span hidden="true">{{ data.ApiKey }}</span>
               <i class="bi bi-copy" style="cursor: pointer;"></i>
             </li>
           </ul>
@@ -41,14 +50,11 @@
 </div>
 
 <script>
-  function copy(text) {
-    navigator.clipboard.writeText(text)
-  }
-  
   document.querySelectorAll('.bi-copy').forEach(function (icon) {
     icon.addEventListener('click', function (event) {
-      var text = event.target.parentElement.innerText
+      var text = event.target.parentElement.querySelector('span').innerText
       copy(text)
+      toast('Copied to clipboard')
     })
   })
 </script>

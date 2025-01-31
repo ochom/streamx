@@ -4,12 +4,25 @@
   {% for item in instances %}
     <div class="col-4 mb-3">
       <div class="card">
+        <div class="card-header">{{ item.Name }}</div>
         <div class="card-body">
-          <h5 class="card-text">{{ item.Name }}</h5>
           <p class="card-title">{{ item.Description }}</p>
-          <p class="card-title">Instance ID: {{ item.ID }}</p>
+          <p class="card-title">
+            Instance ID:<br /> <b class="instance-id" style="cursor: pointer;">{{ item.ID }}</b>
+            <i class="bi bi-copy" style="cursor: pointer;"></i>
+          </p>
         </div>
       </div>
     </div>
   {% endfor %}
 </div>
+
+<script>
+  document.querySelectorAll('.bi-copy').forEach(function (icon) {
+    icon.addEventListener('click', function (event) {
+      var text = event.target.parentElement.querySelector('.instance-id').innerText
+      copy(text)
+      toast('Instance ID copied to clipboard')
+    })
+  })
+</script>
