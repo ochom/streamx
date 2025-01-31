@@ -84,3 +84,35 @@ func RemoveAllSubscriptions() {
 
 	logs.Info("Remove all subscriptions==> affected: %d", res.RowsAffected)
 }
+
+// Event ...
+type Event struct {
+	ID         uint64 `json:"id"`
+	InstanceID string `json:"instance_id"`
+	EventDate  string `json:"event_date"`
+	Hour       int    `json:"hour"`
+	Total      int    `json:"total"`
+}
+
+// AddEvent ...
+func AddEvent(instanceID string) {
+	hour := time.Now().Hour()
+	eventDate := time.Now().Format("2006-01-02")
+
+	query := `
+		INSERT INTO events 
+			(instance_id, event_date, hour, total)
+		VALUES 
+			(?, ?, ?, 1)
+		ON CONFLICT (instance_id, event_date, hour) DO 
+		UPDATE SET
+				total = EXCLUDED.total + 1;
+	`
+	res := sqlr.GORM().Exec(query, instanceID, eventDate, hour)
+	if res.Error != nil {
+		logs.Error("Add event==> error: %v", res.Error)
+		return
+	}
+
+	logs.Info("Add event==> affected: %d", res.RowsAffected)
+}

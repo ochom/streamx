@@ -9,9 +9,9 @@ import (
 
 // Message ...
 type Message struct {
+	ID         string `json:"id"`
 	InstanceID string `json:"instanceID"`
 	Channel    string `json:"channel"`
-	ID         string `json:"id"`
 	Event      string `json:"event"`
 	Data       any    `json:"data"`
 }
