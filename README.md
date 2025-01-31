@@ -43,7 +43,7 @@ In your front-end, you can listen to messages like this
 ```js
 import Stream from streamx-js
 
-const stream = new Stream('apiKey', 'instanceID', 'channelName')
+const stream = new Stream('publicKey', 'instanceID', 'channelName')
 
 
 // add events to listen to

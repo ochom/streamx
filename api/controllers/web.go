@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/ochom/gutils/auth"
+	"github.com/ochom/gutils/logs"
 	"github.com/ochom/gutils/sqlr"
 	"github.com/streamx/core/models"
 	"gorm.io/gorm"
@@ -45,10 +48,25 @@ func Dashboard(c *fiber.Ctx) error {
 		return db.Where("user_id = ?", user.ID)
 	})
 
+	query := `
+		SELECT (SUM(joined) - SUM("left")) as active_clients
+		FROM subscriptions
+		WHERE
+			DATE(event_date) = DATE(?)
+			AND hour <= ?
+			AND instance_id IN (SELECT id FROM instances WHERE user_id = ?)
+	`
+
+	var activeClients int
+	if err := sqlr.GORM().Raw(query, time.Now(), time.Now().Hour(), user.ID).Scan(&activeClients).Error; err != nil {
+		logs.Error("Failed to get active clients: %v", err)
+		activeClients = 0
+	}
+
 	dashData := []map[string]any{
 		{"title": "Total Instances", "value": instances},
 		{"title": "Total Messages", "value": 250_000_000},
-		{"title": "Active clients", "value": 215},
+		{"title": "Active clients", "value": activeClients},
 		{"title": "Unique clients", "value": 250_000},
 	}
 

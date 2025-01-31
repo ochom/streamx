@@ -90,4 +90,6 @@ func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Wri
 	}
 
 	channel.RemoveClient(c)
+	instanceID, _ := utils.GetPoolDetails(c.poolID)
+	models.RemoveSubscriber(instanceID)
 }
