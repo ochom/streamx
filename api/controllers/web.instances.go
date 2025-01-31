@@ -43,9 +43,11 @@ func GetInstances(c *fiber.Ctx) error {
 		return db.Where("user_id = ?", user.ID)
 	})
 
-	return c.Render("instances", fiber.Map{
-		"instances": instances,
-	}, "layouts/main")
+	return c.Render("instances",
+		fiber.Map{
+			"instances": instances,
+		},
+		"layouts/main")
 }
 
 // DeleteInstance ...

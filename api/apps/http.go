@@ -26,6 +26,9 @@ func RunHttpServer() {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
+	app.Get("/subscribe/:apiKey/:instanceID/:channelID", controllers.HandleSubscription)
+	app.Post("/publish", controllers.HandlePublish)
+
 	app.Route("/", func(r fiber.Router) {
 		r.Get("/login", controllers.Login)
 		r.Post("/login", controllers.DoLogin)
@@ -45,9 +48,6 @@ func RunHttpServer() {
 		r.Get("/settings", controllers.Settings)
 		r.Get("/logout", controllers.Logout)
 	})
-
-	app.Get("/subscribe/:apiKey/:instanceID/:channelID", controllers.HandleSubscription)
-	app.Post("/publish", controllers.HandlePublish)
 
 	app.Route("/profiles", func(r fiber.Router) {
 		r.Post("/", controllers.CreateProfile)
