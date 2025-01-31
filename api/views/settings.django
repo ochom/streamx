@@ -20,6 +20,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
               {{ data.PublicKey }}
+              <span hidden="true">{{ data.PublicKey }}</span>
               <i class="bi bi-copy" style="cursor: pointer;"></i>
             </li>
           </ul>
