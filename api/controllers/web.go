@@ -41,9 +41,29 @@ func WebAuth(c *fiber.Ctx) error {
 func Dashboard(c *fiber.Ctx) error {
 	user := c.Locals("user").(*models.User)
 
+	instances := sqlr.Count[models.Instance](func(db *gorm.DB) *gorm.DB {
+		return db.Where("user_id = ?", user.ID)
+	})
+
+	dashData := []map[string]any{
+		{"title": "Total Instances", "value": instances},
+		{"title": "Total Messages", "value": 250_000_000},
+		{"title": "Active clients", "value": 215},
+		{"title": "Unique clients", "value": 250_000},
+	}
+
 	return c.Render("dashboard", fiber.Map{
-		"Title": "Home",
-		"User":  user,
+		"Title":    "Home",
+		"User":     user,
+		"dashData": dashData,
+	}, "layouts/main")
+}
+
+// Settings ...
+func Settings(c *fiber.Ctx) error {
+	user := c.Locals("user").(*models.User)
+	return c.Render("settings", fiber.Map{
+		"data": user,
 	}, "layouts/main")
 }
 

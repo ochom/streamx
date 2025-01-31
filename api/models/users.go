@@ -13,6 +13,7 @@ import (
 type User struct {
 	ID        uuid.UUID `json:"id" gorm:"primaryKey;default:uuid_generate_v4()"`
 	ApiKey    string    `json:"api_key" gorm:"uniqueIndex"`
+	PublicKey string    `json:"public_key" gorm:"uniqueIndex"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email" gorm:"unique"`
 	Password  string    `json:"-"`
@@ -25,16 +26,23 @@ func (u *User) AfterFind(tx *gorm.DB) (err error) {
 		u.Password = helpers.HashPassword("123456")
 		tx.Save(u)
 	}
+
+	if u.PublicKey == "" {
+		u.PublicKey = uuid.NewString()
+		tx.Save(u)
+	}
+
 	return
 }
 
 // NewUser ...
 func NewUser(name, email, password string) *User {
 	return &User{
-		Name:     name,
-		Email:    email,
-		Password: helpers.HashPassword(password),
-		ApiKey:   uuidx.New(),
+		Name:      name,
+		Email:     email,
+		Password:  helpers.HashPassword(password),
+		ApiKey:    uuidx.New(),
+		PublicKey: uuid.NewString(),
 	}
 }
 

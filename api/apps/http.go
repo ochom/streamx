@@ -35,6 +35,8 @@ func RunHttpServer() {
 		// authenticate every request
 		r.Use(controllers.WebAuth)
 		r.Get("/", controllers.Dashboard)
+		r.Get("/instances", controllers.GetInstances)
+		r.Get("/settings", controllers.Settings)
 		r.Get("/logout", controllers.Logout)
 	})
 

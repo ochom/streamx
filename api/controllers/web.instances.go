@@ -37,16 +37,14 @@ func CreateInstance(c *fiber.Ctx) error {
 
 // GetInstances ...
 func GetInstances(c *fiber.Ctx) error {
-	user, err := getToken(c)
-	if err != nil {
-		return err
-	}
-
+	user := c.Locals("user").(*models.User)
 	instances := sqlr.FindAll[models.Instance](func(db *gorm.DB) *gorm.DB {
 		return db.Where("user_id = ?", user.ID)
 	})
 
-	return c.JSON(instances)
+	return c.Render("instances", fiber.Map{
+		"instances": instances,
+	}, "layouts/main")
 }
 
 // DeleteInstance ...
