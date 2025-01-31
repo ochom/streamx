@@ -21,6 +21,10 @@ func CreateProfile(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "email is required"})
 	}
 
+	if req["password"] == "" {
+		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "password is required"})
+	}
+
 	if !strings.Contains(req["email"], "@") {
 		return c.Status(400).JSON(fiber.Map{"status": "error", "message": "invalid email address"})
 	}
@@ -31,7 +35,7 @@ func CreateProfile(c *fiber.Ctx) error {
 	}
 
 	userName := splits[0]
-	user := models.NewUser(userName, req["email"])
+	user := models.NewUser(userName, req["email"], req["password"])
 	if err := sqlr.Create(user); err != nil {
 		logs.Error("failed to create user: %s", err.Error())
 		return c.Status(500).JSON(fiber.Map{"status": "error", "message": "failed to create account, email already exists"})

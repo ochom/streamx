@@ -3,19 +3,39 @@ package apps
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/template/django/v3"
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/controllers"
 )
 
 func RunHttpServer() {
-	app := fiber.New()
+	webEngine := django.New("./views", ".django")
+	app := fiber.New(fiber.Config{
+		Views: webEngine,
+	})
+
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "*",
 		AllowHeaders:     "Cache-Control",
-		AllowCredentials: false,
+		AllowCredentials: true,
+		AllowOriginsFunc: func(origin string) bool {
+			return true
+		},
 	}))
+
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
+	})
+
+	app.Route("/", func(r fiber.Router) {
+		r.Get("/login", controllers.Login)
+		r.Post("/login", controllers.DoLogin)
+		r.Get("/register", controllers.Register)
+		r.Post("/register", controllers.DoRegister)
+
+		// authenticate every request
+		r.Use(controllers.WebAuth)
+		r.Get("/", controllers.Dashboard)
+		r.Get("/logout", controllers.Logout)
 	})
 
 	app.Get("/subscribe/:apiKey/:instanceID/:channelID", controllers.HandleSubscription)
