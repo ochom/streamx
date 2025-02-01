@@ -10,7 +10,7 @@ import (
 // Subscription ...
 type Subscription struct {
 	InstanceID string `json:"instance_id" gorm:"uniqueIndex:idx_instance_id_event_date_hour"`
-	EventDate  string `json:"event_date" gorm:"uniqueIndex:idx_instance_id_event_date_hour"`
+	EventDate  string `json:"event_date" gorm:"uniqueIndex:idx_instance_id_event_date_hour;type:date"`
 	Hour       int    `json:"hour" gorm:"uniqueIndex:idx_instance_id_event_date_hour"`
 	Joined     int    `json:"joined" gorm:"default:0"`
 	Left       int    `json:"left" gorm:"default:0"`
@@ -87,7 +87,7 @@ func RemoveAllSubscriptions() {
 // Event ...
 type Event struct {
 	InstanceID string `json:"instance_id" gorm:"uniqueIndex:idx_events_instance_id_event_date_hour"`
-	EventDate  string `json:"event_date" gorm:"uniqueIndex:idx_events_instance_id_event_date_hour"`
+	EventDate  string `json:"event_date" gorm:"uniqueIndex:idx_events_instance_id_event_date_hour;type:date"`
 	Hour       int    `json:"hour" gorm:"uniqueIndex:idx_events_instance_id_event_date_hour"`
 	Total      int    `json:"total"`
 }
