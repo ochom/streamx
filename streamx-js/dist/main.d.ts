@@ -1,9 +1,26 @@
 type callBackFunc = (event: any) => void;
+type Config = {
+    apiKey: string;
+    instanceID: string;
+    channel?: string;
+    baseUrl?: string;
+    pollInterval?: number;
+};
+type Event = {
+    key: string;
+    fn: callBackFunc;
+};
 declare class StreamX {
-    es: EventSource;
-    constructor(apiKey: string, instanceID: string, channelID: string, config?: any);
+    private config;
+    private interval;
+    private events;
+    private eventSource?;
+    constructor(config: Config);
+    private validate;
+    private poll;
+    listen(channel?: string): Promise<void>;
     on(eventName: string, callback: callBackFunc): void;
-    close(): void;
+    destroy(): void;
 }
 
-export { type callBackFunc, StreamX as default };
+export { type Config, type Event, type callBackFunc, StreamX as default };
