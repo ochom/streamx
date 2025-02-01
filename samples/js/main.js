@@ -62,6 +62,9 @@ var StreamX = class {
     if (channel) {
       this.config.channel = channel;
     }
+    if (this.eventSource) {
+      this.eventSource.close();
+    }
     const url = `${this.config.baseUrl}/subscribe/${this.config.apiKey}/${this.config.instanceID}/${this.config.channel}`;
     this.eventSource = new EventSource(url);
     for (const event of this.events) {

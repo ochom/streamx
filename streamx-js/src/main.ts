@@ -62,6 +62,11 @@ export default class StreamX {
       this.config.channel = channel;
     }
 
+    // destroy the existing event source
+    if (this.eventSource) {
+      this.eventSource.close();
+    }
+
     // create a new instance of EventSource
     const url = `${this.config.baseUrl}/subscribe/${this.config.apiKey}/${this.config.instanceID}/${this.config.channel}`;
     this.eventSource = new EventSource(url);
