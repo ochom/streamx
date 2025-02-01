@@ -12,8 +12,8 @@ import (
 
 // HandlePublish ...
 func HandlePublish(c *fiber.Ctx) error {
-	token := c.Get("Authorization")
-	if token == "" {
+	apiKey := c.Get("Authorization")
+	if apiKey == "" {
 		return c.Status(401).JSON(fiber.Map{"status": "error", "message": "unauthorized, missing api key"})
 	}
 
@@ -22,7 +22,7 @@ func HandlePublish(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 
-	if err := models.ValidateSubscriber(token, message.InstanceID); err != nil {
+	if err := models.ValidateSubscriber(apiKey, message.InstanceID); err != nil {
 		return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 
