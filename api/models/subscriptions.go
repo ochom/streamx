@@ -88,9 +88,9 @@ func RemoveAllSubscriptions() {
 // Event ...
 type Event struct {
 	ID         uint64 `json:"id"`
-	InstanceID string `json:"instance_id"`
-	EventDate  string `json:"event_date"`
-	Hour       int    `json:"hour"`
+	InstanceID string `json:"instance_id" gorm:"uniqueIndex:idx_instance_id_event_date_hour"`
+	EventDate  string `json:"event_date" gorm:"uniqueIndex:idx_instance_id_event_date_hour"`
+	Hour       int    `json:"hour" gorm:"uniqueIndex:idx_instance_id_event_date_hour"`
 	Total      int    `json:"total"`
 }
 
