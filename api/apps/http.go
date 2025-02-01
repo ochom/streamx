@@ -1,103 +1,61 @@
 package apps
 
 import (
-	"bufio"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/google/uuid"
-	"github.com/ochom/gutils/helpers"
+	"github.com/gofiber/template/django/v3"
 	"github.com/ochom/gutils/logs"
-	"github.com/ochom/gutils/pubsub"
-	"github.com/streamx/core/clients"
-	"github.com/streamx/core/models"
-	"github.com/streamx/core/utils"
-	"github.com/valyala/fasthttp"
+	"github.com/streamx/core/controllers"
 )
 
 func RunHttpServer() {
-	app := fiber.New()
+	webEngine := django.New("./views", ".django")
+	app := fiber.New(fiber.Config{
+		Views: webEngine,
+	})
+
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "*",
 		AllowHeaders:     "Cache-Control",
-		AllowCredentials: false,
+		AllowCredentials: true,
+		AllowOriginsFunc: func(origin string) bool {
+			return true
+		},
 	}))
+
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	app.Get("/subscribe/:apiKey/:instanceID/:channelID", func(c *fiber.Ctx) error {
-		// validate api key and instance id
-		if err := models.ValidateSubscriber(c.Params("apiKey"), c.Params("instanceID")); err != nil {
-			return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
-		}
+	app.Get("/subscribe/:apiKey/:instanceID/:channelID", controllers.HandleSubscription)
+	app.Post("/publish", controllers.HandlePublish)
 
-		ctx := c.Context()
+	app.Route("/", func(r fiber.Router) {
+		r.Get("/login", controllers.Login)
+		r.Post("/login", controllers.DoLogin)
+		r.Get("/register", controllers.Register)
+		r.Post("/register", controllers.DoRegister)
 
-		ctx.SetContentType("text/event-stream")
-		ctx.Response.Header.Set("Cache-Control", "no-cache")
-		ctx.Response.Header.Set("Connection", "keep-alive")
-		ctx.Response.Header.Set("Transfer-Encoding", "chunked")
-		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
-		ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
+		// authenticate every request
+		r.Use(controllers.WebAuth)
+		r.Get("/", controllers.Dashboard)
 
-		channelID := utils.GetPoolID(c.Params("instanceID"), c.Params("channelID"))
-		channel := clients.GetChannel(channelID)
-		client := clients.NewClient(channelID)
-		channel.AddClient(client)
+		// instances
+		r.Get("/instances", controllers.GetInstances)
+		r.Get("/instances/create", controllers.CreateInstance)
+		r.Post("/instances/create", controllers.DoCreateInstance)
+		r.Delete("/instances/:instanceID", controllers.DeleteInstance)
 
-		// send first message to this client
-		client.AddMessage(models.NewMessage(c.Params("instanceID"), c.Params("channelID"), "welcome", "Welcome to StreamX"))
-
-		ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
-			client.Listen(ctx, channel, w)
-		}))
-		return nil
+		r.Get("/settings", controllers.Settings)
+		r.Get("/logout", controllers.Logout)
 	})
 
-	app.Post("/publish", func(c *fiber.Ctx) error {
-		token := c.Get("Authorization")
-		if token == "" {
-			return c.Status(401).JSON(fiber.Map{"status": "error", "message": "unauthorized, missing api key"})
-		}
-
-		var message models.Message
-		if err := c.BodyParser(&message); err != nil {
-			return c.JSON(fiber.Map{"status": "error", "message": err.Error()})
-		}
-
-		if err := models.ValidateSubscriber(token, message.InstanceID); err != nil {
-			return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
-		}
-
-		// TODO check if user limit is not exceeded
-
-		if message.ID == "" {
-			message.ID = uuid.NewString()
-		}
-
-		if message.Event == "" {
-			message.Event = "message"
-		}
-
-		go postMessage(message)
-		return c.JSON(fiber.Map{"status": "ok"})
+	app.Route("/profiles", func(r fiber.Router) {
+		r.Post("/", controllers.CreateProfile)
+		r.Get("/", controllers.GetProfile)
 	})
 
 	logs.Info("[X] Starting the HTTP server")
 	if err := app.Listen(":8080"); err != nil {
 		panic(err)
-	}
-}
-
-// postMessage push message to queue
-func postMessage(message models.Message) {
-	publisher := pubsub.NewPublisher(rabbitUrl, "STREAMX_EXCHANGE")
-	publisher.SetExchangeType(pubsub.FanOut)
-	publisher.SetConnectionName("streamx-producer")
-
-	if err := publisher.Publish(helpers.ToBytes(message)); err != nil {
-		logs.Error("failed to publish message: %s", err.Error())
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/ochom/gutils/helpers"
 	uuidx "github.com/ochom/gutils/uuid"
 	"gorm.io/gorm"
 )
@@ -11,18 +12,38 @@ import (
 // User  ...
 type User struct {
 	ID        uuid.UUID `json:"id" gorm:"primaryKey;default:uuid_generate_v4()"`
-	ApiKey    string    `json:"api_key" gorm:"uniqueIndex"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email" gorm:"unique"`
+	Password  string    `json:"-"`
+	IsAdmin   bool      `json:"is_admin" gorm:"default:false"`
+	ApiKey    string    `json:"api_key" gorm:"uniqueIndex"`
+	PublicKey string    `json:"public_key" gorm:"uniqueIndex"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// AfterFind ...
+func (u *User) AfterFind(tx *gorm.DB) (err error) {
+	if u.Password == "" {
+		u.Password = helpers.HashPassword("123456")
+		tx.Save(u)
+	}
+
+	if u.PublicKey == "" {
+		u.PublicKey = u.ApiKey
+		tx.Save(u)
+	}
+
+	return
+}
+
 // NewUser ...
-func NewUser(name, email string) *User {
+func NewUser(name, email, password string) *User {
 	return &User{
-		Name:   name,
-		Email:  email,
-		ApiKey: uuidx.New(),
+		Name:      name,
+		Email:     email,
+		Password:  helpers.HashPassword(password),
+		ApiKey:    uuidx.New(),
+		PublicKey: uuid.NewString(),
 	}
 }
 
@@ -32,6 +53,11 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 		u.ApiKey = uuidx.New()
 	}
 	return
+}
+
+// ComparePassword ...
+func (u *User) ComparePassword(password string) bool {
+	return helpers.ComparePassword(u.Password, password)
 }
 
 // Instance ...

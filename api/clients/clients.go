@@ -3,10 +3,12 @@ package clients
 import (
 	"bufio"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/models"
+	"github.com/streamx/core/utils"
 	"github.com/valyala/fasthttp"
 )
 
@@ -18,16 +20,39 @@ type Client struct {
 
 // NewClient ...
 func NewClient(poolID string) *Client {
-	return &Client{
+	client := &Client{
 		id:       uuid.NewString(),
 		poolID:   poolID,
 		messages: make(chan *models.Message, 100),
 	}
+
+	client.welcome()
+	return client
 }
 
-// GetPoolID ...
-func (c *Client) GetPoolID() string {
-	return c.poolID
+// welcome ...
+func (c *Client) welcome() {
+	// send first message to this client
+	data := map[string]any{
+		"message": "Welcome to StreamX",
+		"time":    time.Now().Format(time.RFC3339),
+	}
+
+	instance, channel := utils.GetPoolDetails(c.poolID)
+	msg := models.NewMessage(instance, channel, "welcome", data)
+	c.AddMessage(msg)
+}
+
+// KeepAlive ...
+func (c *Client) KeepAlive() {
+	data := map[string]string{
+		"message": "Keep Alive",
+		"time":    time.Now().Format(time.RFC3339),
+	}
+
+	instance, channel := utils.GetPoolDetails(c.poolID)
+	msg := models.NewMessage(instance, channel, "keep-alive", data)
+	c.AddMessage(msg)
 }
 
 // AddMessage ...
@@ -60,9 +85,12 @@ func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Wri
 		case "welcome":
 			logs.Warn("message sent==> client: %s, message: %s", c.id, msg.JSON())
 		default:
+			models.AddEvent(msg.InstanceID)
 			logs.Info("message sent==> client: %s, message: %s", c.id, msg.JSON())
 		}
 	}
 
 	channel.RemoveClient(c)
+	instanceID, _ := utils.GetPoolDetails(c.poolID)
+	models.RemoveSubscriber(instanceID)
 }

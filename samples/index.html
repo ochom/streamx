@@ -13,8 +13,14 @@
   <h2>Our Message: <b id="message"></b></h2>
 
   <script type="module">
-    import Stream from 'https://cdn.jsdelivr.net/npm/streamx-js@1.0.5';
-    const stream = new Stream('6793a7f3181da8429e2db19c', 'd67e4f56-cd45-4f0d-b5c6-6b6fdffe2cf6', '6797df26181ea387f20654df')
+    // import Stream from 'https://cdn.jsdelivr.net/npm/streamx-js@1.0.5';
+    import Stream from "./js/main.mjs"
+
+    const stream = new Stream({
+      apiKey: '6793a7f3181da8429e2db19c',
+      instanceID: 'd67e4f56-cd45-4f0d-b5c6-6b6fdffe2cf6',
+      pollInterval: 60,
+    })
 
     const addNewMessage = (message) => {
       const element = document.getElementById('message');
@@ -41,6 +47,9 @@
       console.log('Keep-alive received:', data);
       addNewMessage(JSON.stringify(data));
     });
+
+    // listen to a specific channel
+    stream.listen('6797df26181ea387f20654df')
   </script>
 </body>
 
