@@ -12,6 +12,7 @@ func GetSchema() []any {
 		&User{},
 		&Instance{},
 		&Subscription{},
+		&Event{},
 	}
 }
 
