@@ -15,6 +15,7 @@ declare class StreamX {
     private interval;
     private events;
     private eventSource?;
+    private prevEventSource?;
     constructor(config: Config);
     private validate;
     private poll;

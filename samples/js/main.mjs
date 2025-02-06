@@ -12,6 +12,7 @@ var StreamX = class {
     this.interval = void 0;
     this.events = [];
     this.eventSource = void 0;
+    this.prevEventSource = void 0;
     this.config = { ...this.config, ...config };
     this.validate();
     this.poll();
@@ -28,18 +29,18 @@ var StreamX = class {
     if (this.config.pollInterval === void 0 || this.config.pollInterval === 0) {
       this.config.pollInterval = 30 * 60;
     }
-    this.interval = setInterval(() => {
-      console.log("creating a new event source");
-      this.listen();
-      console.log("listening to events");
-    }, this.config.pollInterval * 1e3);
+    this.interval = setInterval(
+      () => this.listen(),
+      this.config.pollInterval * 1e3
+    );
   }
   async listen(channel) {
+    console.log("Creating new stream \u{1F680}");
     if (channel) {
       this.config.channel = channel;
     }
     if (this.eventSource) {
-      this.eventSource.close();
+      this.prevEventSource = this.eventSource;
     }
     const url = `${this.config.baseUrl}/subscribe/${this.config.apiKey}/${this.config.instanceID}/${this.config.channel}`;
     this.eventSource = new EventSource(url);
@@ -48,6 +49,14 @@ var StreamX = class {
         event.key,
         (msg) => event.fn(msg?.data || "{}")
       );
+    }
+    console.log("New stream created \u{1F44C}");
+    if (this.prevEventSource) {
+      setTimeout(() => {
+        console.log("Closing previous stream \u{1F44B}");
+        this.prevEventSource?.close();
+        this.prevEventSource = void 0;
+      }, 2e3);
     }
   }
   on(eventName, callback) {
@@ -62,6 +71,8 @@ var StreamX = class {
     }
     clearInterval(this.interval);
     this.eventSource.close();
+    this.eventSource = void 0;
+    this.prevEventSource = void 0;
   }
 };
 export {

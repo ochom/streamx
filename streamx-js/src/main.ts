@@ -25,6 +25,7 @@ export default class StreamX {
   private interval: any = undefined;
   private events: Event[] = [];
   private eventSource?: EventSource = undefined;
+  private prevEventSource?: EventSource = undefined;
 
   constructor(config: Config) {
     this.config = { ...this.config, ...config };
@@ -50,32 +51,43 @@ export default class StreamX {
       this.config.pollInterval = 30 * 60;
     }
 
-    this.interval = setInterval(() => {
-      console.log("creating a new event source");
-      this.listen();
-      console.log("listening to events");
-    }, this.config.pollInterval * 1000);
+    this.interval = setInterval(
+      () => this.listen(),
+      this.config.pollInterval * 1000
+    );
   }
 
   async listen(channel?: string) {
+    console.log("Creating new stream 🚀");
     if (channel) {
       this.config.channel = channel;
     }
 
-    // destroy the existing event source
+    // Store the old stream before replacing it
     if (this.eventSource) {
-      this.eventSource.close();
+      this.prevEventSource = this.eventSource;
     }
 
-    // create a new instance of EventSource
+    // Create a new instance of EventSource
     const url = `${this.config.baseUrl}/subscribe/${this.config.apiKey}/${this.config.instanceID}/${this.config.channel}`;
     this.eventSource = new EventSource(url);
 
-    // add all the existing events to event source
+    // Add all existing event listeners to the new stream
     for (const event of this.events) {
       this.eventSource.addEventListener(event.key, (msg: MessageEvent) =>
         event.fn(msg?.data || "{}")
       );
+    }
+
+    console.log("New stream created 👌");
+
+    // Close previous instance after 2 seconds
+    if (this.prevEventSource) {
+      setTimeout(() => {
+        console.log("Closing previous stream 👋");
+        this.prevEventSource?.close();
+        this.prevEventSource = undefined;
+      }, 2000);
     }
   }
 
@@ -94,5 +106,7 @@ export default class StreamX {
 
     clearInterval(this.interval);
     this.eventSource.close();
+    this.eventSource = undefined;
+    this.prevEventSource = undefined;
   }
 }

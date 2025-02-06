@@ -101,7 +101,7 @@ payload = json.dumps({
   }
 })
 
-response = requests.request("POST", "https://apis.streamx.io/publish", data=payload,  headers=headersList)
+response = requests.request("POST", "https://api.streamx.co.ke/publish", data=payload,  headers=headersList)
 
 print(response.text)
 ```
