@@ -22,13 +22,16 @@ func init() {
 		panic(err)
 	}
 
-	if err := sqlr.GORM().AutoMigrate(models.GetSchema()...); err != nil {
-		panic(err)
-	}
+	// migrate in the background to prevent any delays in start up
+	go func() {
+		if err := sqlr.GORM().AutoMigrate(models.GetSchema()...); err != nil {
+			panic(err)
+		}
 
-	if err := models.CreateFirstInstance(); err != nil {
-		panic(err)
-	}
+		if err := models.CreateFirstInstance(); err != nil {
+			panic(err)
+		}
+	}()
 }
 
 func main() {
