@@ -63,6 +63,7 @@ func sendMessage(poolID string, message *models.Message) {
 	clientList := clients.GetClientsByPoolID(poolID)
 	if len(clientList) == 0 {
 		clients.DeleteChannel(poolID)
+		return
 	}
 
 	for _, client := range clientList {
