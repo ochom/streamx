@@ -25,11 +25,11 @@ func init() {
 	// migrate in the background to prevent any delays in start up
 	go func() {
 		if err := sqlr.GORM().AutoMigrate(models.GetSchema()...); err != nil {
-			panic(err)
+			logs.Error("migration: %s", err.Error())
 		}
 
 		if err := models.CreateFirstInstance(); err != nil {
-			panic(err)
+			logs.Error("create first instance: %s", err.Error())
 		}
 	}()
 }
