@@ -41,7 +41,7 @@ Once an Instance is created, you can copy the id to use in your `APIs` and `stre
 In your front-end, you can listen to messages like this
 
 ```js
-import Stream from streamx-js
+import Stream from 'streamx-js'
 
 const streamConfig = {
   apiKey: "your-public-api-key";
