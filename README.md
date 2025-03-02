@@ -44,11 +44,11 @@ In your front-end, you can listen to messages like this
 import Stream from 'streamx-js'
 
 const streamConfig = {
-  apiKey: "your-public-api-key";
-  instanceID: "your-instance-id";
-  channel: "your channel"; // optional: default will be ABC
-  baseUrl: "streamx-api-url"; // optional: update according when running your own instance of streamx
-  pollInterval: 30*60; // optional, the time (in seconds) before refreshing connection
+  apiKey: "your-public-api-key",
+  instanceID: "your-instance-id",
+  channel: "your channel", // optional: default will be ABC
+  baseUrl: "streamx-api-url", // optional: update according when running your own instance of streamx
+  pollInterval: 30*60, // optional, the time (in seconds) before refreshing connection
 }
 
 const stream = new Stream(streamConfig)
