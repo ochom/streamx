@@ -33,8 +33,6 @@ func HandleSubscription(c *fiber.Ctx) error {
 	channel := clients.GetChannel(channelID)
 	channel.AddClient(client)
 
-	go models.AddSubscriber(c.Params("instanceID"))
-
 	ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
 		client.Listen(ctx, channel, w)
 	}))

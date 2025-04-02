@@ -85,12 +85,9 @@ func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Wri
 		case "welcome":
 			logs.Warn("message sent==> client: %s, message: %s", c.id, msg.JSON())
 		default:
-			models.AddEvent(msg.InstanceID)
 			logs.Info("message sent==> client: %s, message: %s", c.id, msg.JSON())
 		}
 	}
 
 	channel.RemoveClient(c)
-	instanceID, _ := utils.GetPoolDetails(c.poolID)
-	models.RemoveSubscriber(instanceID)
 }

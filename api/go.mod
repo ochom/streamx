@@ -8,7 +8,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/gofiber/template/django/v3 v3.1.13
 	github.com/google/uuid v1.6.0
-	github.com/ochom/gutils v1.9.3
+	github.com/ochom/gutils v1.10.2
 	github.com/valyala/fasthttp v1.58.0
 	gorm.io/gorm v1.25.12
 )

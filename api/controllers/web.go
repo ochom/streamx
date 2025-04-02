@@ -58,7 +58,7 @@ func Dashboard(c *fiber.Ctx) error {
 	`
 
 	var activeClients int
-	if err := sqlr.GORM().Raw(query, time.Now(), time.Now().Hour(), user.ID).Scan(&activeClients).Error; err != nil {
+	if err := sqlr.Raw(query, time.Now(), time.Now().Hour(), user.ID).Scan(&activeClients).Error; err != nil {
 		logs.Error("Failed to get active clients: %v", err)
 		activeClients = 0
 	}

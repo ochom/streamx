@@ -42,7 +42,7 @@ func HandlePublish(c *fiber.Ctx) error {
 
 // postMessage push message to queue
 func postMessage(message models.Message) {
-	publisher := pubsub.NewPublisher(constants.RabbitUrl, "STREAMX_EXCHANGE")
+	publisher := pubsub.NewPublisher(constants.RabbitUrl, "STREAMX_EXCHANGE", "")
 	publisher.SetExchangeType(pubsub.FanOut)
 	publisher.SetConnectionName("streamx-producer")
 

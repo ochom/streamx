@@ -35,8 +35,6 @@ func init() {
 }
 
 func main() {
-	// Remove all subscriptions
-	models.RemoveAllSubscriptions()
 
 	// Run the HTTP server
 	go apps.RunHttpServer()

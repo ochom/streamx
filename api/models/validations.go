@@ -21,15 +21,15 @@ func ValidateSubscriber(apiKey, instanceID string) error {
 			i.id, i.name, i.user_id, u.api_key 
 		FROM 
 			instances i
-		LEFT 
-			JOIN users u ON i.user_id = u.id
+		JOIN 
+			users u ON i.user_id = u.id
 		WHERE 
 			i.id = ? AND u.api_key = ?
 		LIMIT 1
 	`
 
 	var instance *Instance
-	if err := sqlr.GORM().Raw(query, instanceID, apiKey).Scan(&instance).Error; err != nil {
+	if err := sqlr.Raw(query, instanceID, apiKey).Scan(&instance).Error; err != nil {
 		return errors.New("unauthorized, invalid instance")
 	}
 

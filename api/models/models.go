@@ -11,8 +11,6 @@ func GetSchema() []any {
 	return []any{
 		&User{},
 		&Instance{},
-		&Subscription{},
-		&Event{},
 	}
 }
 
@@ -34,13 +32,13 @@ func CreateFirstInstance() error {
 
 	// create user
 	user := NewUser(adminName, adminEmail, adminPassword)
-	if err := sqlr.GORM().Create(user).Error; err != nil {
+	if err := sqlr.Create(user); err != nil {
 		return err
 	}
 
 	// create instance
 	instance := NewInstance(user.ID, "Default", "Default instance")
-	if err := sqlr.GORM().Create(instance).Error; err != nil {
+	if err := sqlr.Create(instance); err != nil {
 		return err
 	}
 
