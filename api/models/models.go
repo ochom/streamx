@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/ochom/gutils/env"
-	"github.com/ochom/gutils/logs"
 	"github.com/ochom/gutils/sqlr"
 	"gorm.io/gorm"
 )
@@ -21,12 +20,11 @@ func CreateFirstInstance() error {
 	adminPassword := env.Get("ADMIN_PASSWORD", "123456")
 
 	// check if a user with this email already exists
-	count := sqlr.Count[User](func(db *gorm.DB) *gorm.DB {
+	exists := sqlr.Exists[User](func(db *gorm.DB) *gorm.DB {
 		return db.Where("email = ?", adminEmail)
 	})
 
-	if count > 0 {
-		logs.Info("admin user already exists")
+	if exists {
 		return nil
 	}
 

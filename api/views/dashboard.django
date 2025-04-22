@@ -7,8 +7,8 @@
     <div class="col">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-text">{{ item.value }}</h5>
           <p class="card-title">{{ item.title }}</p>
+          <h5 class="card-text">{{ item.value }}</h5>
         </div>
       </div>
     </div>
