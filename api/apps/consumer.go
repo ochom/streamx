@@ -9,9 +9,9 @@ import (
 	"github.com/ochom/gutils/logs"
 	"github.com/ochom/gutils/pubsub"
 	"github.com/ochom/gutils/uuid"
+	"github.com/streamx/core/apps/dto"
 	"github.com/streamx/core/clients"
 	"github.com/streamx/core/constants"
-	"github.com/streamx/core/models"
 	"github.com/streamx/core/utils"
 )
 
@@ -36,7 +36,7 @@ func RunRabbitMQConsumer() {
 			consumer.SetDeleteWhenUnused(true)
 
 			err := consumer.Consume(func(b []byte) {
-				message := helpers.FromBytes[models.Message](b)
+				message := helpers.FromBytes[dto.Message](b)
 				poolID := utils.GetPoolID(message.InstanceID, message.Channel)
 				sendMessage(poolID, &message)
 			})
@@ -59,7 +59,7 @@ func keepAlive() {
 }
 
 // sendMessage Send message to all clients in the pool
-func sendMessage(poolID string, message *models.Message) {
+func sendMessage(poolID string, message *dto.Message) {
 	clientList := clients.GetClientsByPoolID(poolID)
 	if len(clientList) == 0 {
 		clients.DeleteChannel(poolID)

@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/ochom/gutils/logs"
-	"github.com/streamx/core/models"
+	"github.com/streamx/core/apps/dto"
 	"github.com/streamx/core/utils"
 	"github.com/valyala/fasthttp"
 )
@@ -15,7 +15,7 @@ import (
 type Client struct {
 	id       string
 	poolID   string
-	messages chan *models.Message
+	messages chan *dto.Message
 }
 
 // NewClient ...
@@ -23,7 +23,7 @@ func NewClient(poolID string) *Client {
 	client := &Client{
 		id:       uuid.NewString(),
 		poolID:   poolID,
-		messages: make(chan *models.Message, 100),
+		messages: make(chan *dto.Message, 100),
 	}
 
 	client.welcome()
@@ -39,7 +39,7 @@ func (c *Client) welcome() {
 	}
 
 	instance, channel := utils.GetPoolDetails(c.poolID)
-	msg := models.NewMessage(instance, channel, "welcome", data)
+	msg := dto.NewMessage(instance, channel, "welcome", data)
 	c.AddMessage(msg)
 }
 
@@ -51,12 +51,12 @@ func (c *Client) KeepAlive() {
 	}
 
 	instance, channel := utils.GetPoolDetails(c.poolID)
-	msg := models.NewMessage(instance, channel, "keep-alive", data)
+	msg := dto.NewMessage(instance, channel, "keep-alive", data)
 	c.AddMessage(msg)
 }
 
 // AddMessage ...
-func (c *Client) AddMessage(msg *models.Message) {
+func (c *Client) AddMessage(msg *dto.Message) {
 	if c == nil {
 		logs.Error("client is nil")
 		return

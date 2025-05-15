@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/streamx/core/clients"
-	"github.com/streamx/core/models"
 	"github.com/streamx/core/utils"
 	"github.com/valyala/fasthttp"
 )
@@ -13,7 +12,7 @@ import (
 // HandleSubscription ...
 func HandleSubscription(c *fiber.Ctx) error {
 	// validate api key and instance id
-	if err := models.ValidateSubscriber(c.Params("apiKey"), c.Params("instanceID")); err != nil {
+	if err := validateClient(c.Params("apiKey")); err != nil {
 		return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 
