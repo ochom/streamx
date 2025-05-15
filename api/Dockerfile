@@ -26,7 +26,6 @@ FROM busybox:1.35.0-uclibc AS deploy
 WORKDIR /
 
 COPY --from=build /server .
-COPY views ./views
 
 EXPOSE 8080
 
