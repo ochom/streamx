@@ -8,7 +8,6 @@ import (
 	"github.com/ochom/gutils/uuid"
 	"github.com/streamx/core/apps/dto"
 	"github.com/streamx/core/constants"
-	"github.com/streamx/core/models"
 )
 
 // HandlePublish ...
@@ -23,7 +22,7 @@ func HandlePublish(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 
-	if err := models.ValidateSubscriber(apiKey, message.InstanceID); err != nil {
+	if err := validateClient(apiKey); err != nil {
 		return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 
