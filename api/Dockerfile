@@ -3,7 +3,7 @@
 ##
 ## Build
 ##
-FROM golang:1.22-alpine  AS build
+FROM golang:1.24-alpine  AS build
 
 WORKDIR /app
 
@@ -21,7 +21,7 @@ RUN go build -o /server
 ##
 ## Deploy
 ##
-FROM busybox:1.35.0-uclibc AS deploy 
+FROM busybox:1.35.0-uclibc AS deploy
 
 WORKDIR /
 
