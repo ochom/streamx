@@ -19,6 +19,14 @@ export type Event = {
  * It supports automatic reconnection and event handling.
  * The class can be configured with an API key, instance ID, channel name, base URL, and polling interval.
  * It also provides methods to listen for events, register event handlers, and destroy the stream.
+ * @param config - Configuration object containing apiKey, instanceID, channel, baseUrl, and pollInterval.
+ * @property {string} apiKey - The API key for authentication.
+ * @property {string} instanceID - The unique identifier for the instance.
+ * @property {string} [channel] - The channel to listen to. Defaults to "ABC".
+ * @property {string} [baseUrl] - The base URL for the StreamX API. Defaults to "https://api.streamx.co.ke".
+ * @property {number} [pollInterval] - The interval in seconds to poll for updates. Defaults to 30 minutes (1800 seconds).
+ *
+ *
  * @example
  * const stream = new StreamX({
  *   apiKey: "your_api_key",
