@@ -17,6 +17,10 @@ var StreamX = class {
     this.validate();
     this.poll();
   }
+  /**
+   * Validates the configuration to ensure required fields are present.
+   * Throws an error if any required field is missing.
+   */
   validate() {
     if (!this.config.apiKey) {
       throw new Error("apiKey is required");
@@ -25,6 +29,10 @@ var StreamX = class {
       throw new Error("instanceID is required");
     }
   }
+  /**
+   * Starts polling for updates at the specified interval.
+   * If pollInterval is not set, defaults to 30 minutes.
+   */
   async poll() {
     if (this.config.pollInterval === void 0 || this.config.pollInterval === 0) {
       this.config.pollInterval = 30 * 60;
@@ -34,6 +42,13 @@ var StreamX = class {
       this.config.pollInterval * 1e3
     );
   }
+  /**
+   * Listens for events on the specified channel.
+   * If a channel is provided, it updates the current channel.
+   * It creates a new EventSource instance and adds event listeners for all registered events.
+   * It also closes the previous EventSource instance after 2 seconds.
+   * @param channel - Optional channel name to listen to.
+   */
   async listen(channel) {
     console.log("Creating new stream \u{1F680}");
     if (channel) {
@@ -59,12 +74,26 @@ var StreamX = class {
       }, 2e3);
     }
   }
+  /**
+   * Registers an event listener for a specific event.
+   * If no event name is provided, defaults to "message".
+   * @param eventName - The name of the event to listen for.
+   * @param callback - The callback function to execute when the event occurs.
+   * @example
+   * stream.on("message", (data) => {
+   *   console.log("Received message:", data);
+   * });
+   */
   on(eventName, callback) {
     if (!eventName) {
       eventName = "message";
     }
     this.events.push({ key: eventName, fn: callback });
   }
+  /**
+   * Destroys the current EventSource instance and clears the interval.
+   * This method should be called when the stream is no longer needed to free up resources.
+   */
   destroy() {
     if (!this.eventSource) {
       return;
