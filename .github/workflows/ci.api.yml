@@ -50,22 +50,10 @@ jobs:
           echo ${{ secrets.DOCKER_PASSWORD }} | \
           docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build image
         run: docker build . --file Dockerfile --tag ochom/streamx:latest
         working-directory: ${{ env.WORKING_DIR }}
 
-      - name: Tag to GHCR
-        run: |
-          docker tag ochom/streamx:latest ghcr.io/ochom/streamx:latest
-
       - name: Push image
         run: |
           docker push ochom/streamx:latest
-          docker push ghcr.io/ochom/streamx:latest
