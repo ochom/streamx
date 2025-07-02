@@ -54,6 +54,11 @@ jobs:
         run: docker build . --file Dockerfile --tag ochom/streamx:latest
         working-directory: ${{ env.WORKING_DIR }}
 
+      - name: Tag to GHCR
+        run: |
+          docker tag ochom/streamx:latest ghcr.io/ochom/streamx:latest
+
       - name: Push image
         run: |
           docker push ochom/streamx:latest
+          docker push ghcr.io/ochom/streamx:latest
