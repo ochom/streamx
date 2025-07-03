@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"context"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
-	"github.com/ochom/gutils/pubsub"
 	"github.com/ochom/gutils/uuid"
 	"github.com/streamx/core/apps/dto"
+	"github.com/streamx/core/apps/providers"
 	"github.com/streamx/core/constants"
 )
 
@@ -34,17 +36,18 @@ func HandlePublish(c *fiber.Ctx) error {
 		message.Event = "message"
 	}
 
-	go postMessage(message)
+	go postMessage(c.Context(), message)
 	return c.JSON(fiber.Map{"status": "ok"})
 }
 
 // postMessage push message to queue
-func postMessage(message dto.Message) {
-	publisher := pubsub.NewPublisher(constants.RabbitUrl, "STREAMX_EXCHANGE", "")
-	publisher.SetExchangeType(pubsub.FanOut)
-	publisher.SetConnectionName("streamx-producer")
-
-	if err := publisher.Publish(helpers.ToBytes(message)); err != nil {
-		logs.Error("failed to publish message: %s", err.Error())
+func postMessage(ctx context.Context, message dto.Message) {
+	client := providers.GetRedisClient()
+	err := client.Publish(ctx, constants.ChannelName, helpers.ToBytes(message)).Err()
+	if err != nil {
+		logs.Error("failed to publish message to Redis: %s", err.Error())
+	} else {
+		logs.Info("message published successfully: %s", message.ID)
 	}
+
 }

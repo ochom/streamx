@@ -6,15 +6,20 @@ import (
 
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/apps"
+	"github.com/streamx/core/apps/providers"
 )
+
+func init() {
+	providers.InitializeRedisClient()
+}
 
 func main() {
 
 	// Run the HTTP server
 	go apps.RunHttpServer()
 
-	// Run RabbitMQ consumer
-	go apps.RunRabbitMQConsumer()
+	// Run consumers
+	go apps.RunConsumers()
 
 	// wait for stop signal
 	stop := make(chan os.Signal, 1)
