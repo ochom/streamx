@@ -1,49 +1,45 @@
 package apps
 
 import (
-	"fmt"
-	"os"
+	"context"
 	"time"
 
 	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
-	"github.com/ochom/gutils/pubsub"
-	"github.com/ochom/gutils/uuid"
 	"github.com/streamx/core/apps/dto"
+	"github.com/streamx/core/apps/providers"
 	"github.com/streamx/core/clients"
 	"github.com/streamx/core/constants"
 	"github.com/streamx/core/utils"
 )
 
-// RunRabbitMQConsumer  consumes messages from rabbit mq
-func RunRabbitMQConsumer() {
+// RunConsumers  consumes messages from a pubsub
+func RunConsumers() {
+
 	go keepAlive()
 
-	hostName, _ := os.Hostname()
-	if hostName == "" {
-		hostName = uuid.New()
-	}
+	logs.Info("[x] running consumers")
 
-	queueName := fmt.Sprintf("streamx-queue-%s", hostName)
-
-	logs.Info("[x] running rabbit mq consumers")
-	for i := 0; i < 10; i++ {
+	ctx := context.Background()
+	client := providers.GetRedisClient()
+	for i := range 10 {
 		go func(worker int) {
-			consumer := pubsub.NewConsumer(constants.RabbitUrl, queueName)
-			consumer.SetExchangeName("STREAMX_EXCHANGE")
-			consumer.SetConnectionName("streamx-consumer")
-			consumer.SetTag(fmt.Sprintf("streamx-consumer-%s-%d", queueName, worker))
-			consumer.SetDeleteWhenUnused(true)
+			subscription := client.Subscribe(ctx, constants.ChannelName)
 
-			err := consumer.Consume(func(b []byte) {
-				message := helpers.FromBytes[dto.Message](b)
+			for {
+				msg, err := subscription.ReceiveMessage(ctx)
+				if err != nil {
+					logs.Fatal("failed to receive message: %s", err.Error())
+					continue
+				}
+
+				message := helpers.FromBytes[dto.Message]([]byte(msg.Payload))
 				poolID := utils.GetPoolID(message.InstanceID, message.Channel)
 				sendMessage(poolID, &message)
-			})
 
-			if err != nil {
-				logs.Error("failed to consume message: %s", err.Error())
+				logs.Info("worker %d received message: %s", worker, message.ID)
 			}
+
 		}(i)
 	}
 }
