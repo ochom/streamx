@@ -22,23 +22,18 @@ func RunConsumers() {
 
 	ctx := context.Background()
 	client := services.GetRedisClient()
-	for i := range 10 {
-		go func(worker int) {
-			subscription := client.Subscribe(ctx, constants.ChannelName)
+	subscription := client.Subscribe(ctx, constants.ChannelName)
 
-			for {
-				msg, err := subscription.ReceiveMessage(ctx)
-				if err != nil {
-					logs.Fatal("failed to receive message: %s", err.Error())
-					continue
-				}
+	for {
+		msg, err := subscription.ReceiveMessage(ctx)
+		if err != nil {
+			logs.Fatal("failed to receive message: %s", err.Error())
+			continue
+		}
 
-				message := helpers.FromBytes[dto.Message]([]byte(msg.Payload))
-				poolID := utils.GetPoolID(message.InstanceID, message.Channel)
-				sendMessage(poolID, &message)
-			}
-
-		}(i)
+		message := helpers.FromBytes[dto.Message]([]byte(msg.Payload))
+		poolID := utils.GetPoolID(message.InstanceID, message.Channel)
+		sendMessage(poolID, &message)
 	}
 }
 
