@@ -7,9 +7,9 @@ import (
 	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/apps/dto"
-	"github.com/streamx/core/apps/providers"
 	"github.com/streamx/core/clients"
 	"github.com/streamx/core/constants"
+	"github.com/streamx/core/services"
 	"github.com/streamx/core/utils"
 )
 
@@ -21,26 +21,19 @@ func RunConsumers() {
 	logs.Info("[x] running consumers")
 
 	ctx := context.Background()
-	client := providers.GetRedisClient()
-	for i := range 10 {
-		go func(worker int) {
-			subscription := client.Subscribe(ctx, constants.ChannelName)
+	client := services.GetRedisClient()
+	subscription := client.Subscribe(ctx, constants.ChannelName)
 
-			for {
-				msg, err := subscription.ReceiveMessage(ctx)
-				if err != nil {
-					logs.Fatal("failed to receive message: %s", err.Error())
-					continue
-				}
+	for {
+		msg, err := subscription.ReceiveMessage(ctx)
+		if err != nil {
+			logs.Fatal("failed to receive message: %s", err.Error())
+			continue
+		}
 
-				message := helpers.FromBytes[dto.Message]([]byte(msg.Payload))
-				poolID := utils.GetPoolID(message.InstanceID, message.Channel)
-				sendMessage(poolID, &message)
-
-				logs.Info("worker %d received message: %s", worker, message.ID)
-			}
-
-		}(i)
+		message := helpers.FromBytes[dto.Message]([]byte(msg.Payload))
+		poolID := utils.GetPoolID(message.InstanceID, message.Channel)
+		sendMessage(poolID, &message)
 	}
 }
 

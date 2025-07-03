@@ -6,11 +6,11 @@ import (
 
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/apps"
-	"github.com/streamx/core/apps/providers"
+	"github.com/streamx/core/services"
 )
 
 func init() {
-	providers.InitializeRedisClient()
+	services.InitializeRedisClient()
 }
 
 func main() {

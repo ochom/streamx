@@ -8,8 +8,8 @@ import (
 	"github.com/ochom/gutils/logs"
 	"github.com/ochom/gutils/uuid"
 	"github.com/streamx/core/apps/dto"
-	"github.com/streamx/core/apps/providers"
 	"github.com/streamx/core/constants"
+	"github.com/streamx/core/services"
 )
 
 // HandlePublish ...
@@ -42,7 +42,7 @@ func HandlePublish(c *fiber.Ctx) error {
 
 // postMessage push message to queue
 func postMessage(ctx context.Context, message dto.Message) {
-	client := providers.GetRedisClient()
+	client := services.GetRedisClient()
 	err := client.Publish(ctx, constants.ChannelName, helpers.ToBytes(message)).Err()
 	if err != nil {
 		logs.Error("failed to publish message to Redis: %s", err.Error())
