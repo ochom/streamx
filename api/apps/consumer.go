@@ -36,8 +36,6 @@ func RunConsumers() {
 				message := helpers.FromBytes[dto.Message]([]byte(msg.Payload))
 				poolID := utils.GetPoolID(message.InstanceID, message.Channel)
 				sendMessage(poolID, &message)
-
-				logs.Info("worker %d received message: %s", worker, message.ID)
 			}
 
 		}(i)
