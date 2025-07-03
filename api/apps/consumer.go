@@ -7,9 +7,9 @@ import (
 	"github.com/ochom/gutils/helpers"
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/apps/dto"
-	"github.com/streamx/core/apps/providers"
 	"github.com/streamx/core/clients"
 	"github.com/streamx/core/constants"
+	"github.com/streamx/core/services"
 	"github.com/streamx/core/utils"
 )
 
@@ -21,7 +21,7 @@ func RunConsumers() {
 	logs.Info("[x] running consumers")
 
 	ctx := context.Background()
-	client := providers.GetRedisClient()
+	client := services.GetRedisClient()
 	for i := range 10 {
 		go func(worker int) {
 			subscription := client.Subscribe(ctx, constants.ChannelName)
