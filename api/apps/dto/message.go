@@ -14,6 +14,7 @@ type Message struct {
 	Channel    string `json:"channel"`
 	Event      string `json:"event"`
 	Data       any    `json:"data"`
+	Message    any    `json:"message,omitempty"` // Deprecated, use Data instead
 }
 
 func NewMessage(instanceID, channel, event string, data any) *Message {
@@ -32,6 +33,10 @@ func (m Message) Format() string {
 }
 
 func (m Message) JSON() string {
+	if m.Data == nil {
+		m.Data = m.Message // Fallback to Message if Data is nil
+	}
+
 	return string(helpers.ToBytes(m))
 }
 
