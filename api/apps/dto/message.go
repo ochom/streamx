@@ -27,16 +27,21 @@ func NewMessage(instanceID, channel, event string, data any) *Message {
 	}
 }
 
+func (m *Message) loadData() {
+	if m.Data == nil {
+		m.Data = m.Message // Fallback to Message if Data is nil
+		m.Message = nil    // Clear Message to avoid duplication
+	}
+}
+
 func (m Message) Format() string {
+	m.loadData()
 	data := getData(m.Data)
 	return fmt.Sprintf("id: %s\nevent: %s\ndata: %s\n\n", m.ID, m.Event, data)
 }
 
 func (m Message) JSON() string {
-	if m.Data == nil {
-		m.Data = m.Message // Fallback to Message if Data is nil
-	}
-
+	m.loadData()
 	return string(helpers.ToBytes(m))
 }
 
@@ -49,6 +54,16 @@ func getData(data any) string {
 	dataInt, ok := data.(float64)
 	if ok {
 		return fmt.Sprintf("%v", dataInt)
+	}
+
+	dataBool, ok := data.(bool)
+	if ok {
+		return fmt.Sprintf("%v", dataBool)
+	}
+
+	dataBytes, ok := data.([]byte)
+	if ok {
+		return string(dataBytes)
 	}
 
 	return string(helpers.ToBytes(data))
