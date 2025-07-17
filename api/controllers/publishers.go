@@ -46,8 +46,5 @@ func postMessage(ctx context.Context, message dto.Message) {
 	err := client.Publish(ctx, constants.ChannelName, helpers.ToBytes(message)).Err()
 	if err != nil {
 		logs.Error("failed to publish message to Redis: %s", err.Error())
-	} else {
-		logs.Info("message published successfully: %s", message.ID)
 	}
-
 }
