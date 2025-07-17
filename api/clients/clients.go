@@ -75,7 +75,7 @@ func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Wri
 		}
 
 		if err := w.Flush(); err != nil {
-			logs.Error("flushing message to client: %s, err: %s", c.id, err.Error())
+			logs.Error("client left: %s", c.id)
 			break
 		}
 

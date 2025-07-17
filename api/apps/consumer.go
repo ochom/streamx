@@ -32,7 +32,7 @@ func RunConsumers() {
 		}
 
 		message := helpers.FromBytes[dto.Message]([]byte(msg.Payload))
-		poolID := utils.GetPoolID(message.InstanceID, message.Channel)
+		poolID := utils.GetPoolID(message.Instance, message.Channel)
 		sendMessage(poolID, &message)
 	}
 }
