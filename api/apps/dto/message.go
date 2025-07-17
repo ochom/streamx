@@ -9,21 +9,22 @@ import (
 
 // Message ...
 type Message struct {
-	ID         string `json:"id"`
-	InstanceID string `json:"instanceID"`
-	Channel    string `json:"channel"`
-	Event      string `json:"event"`
-	Data       any    `json:"data"`
-	Message    any    `json:"message,omitempty"` // Deprecated, use Data instead
+	ID       string `json:"id"`
+	Instance string `json:"instance"`
+	Channel  string `json:"channel"`
+	Event    string `json:"event"`
+	Data     any    `json:"data"`
+	Message  any    `json:"message,omitempty"` // Deprecated, use Data instead
 }
 
-func NewMessage(instanceID, channel, event string, data any) *Message {
+// NewMessage ...
+func NewMessage(instance, channel, event string, data any) *Message {
 	return &Message{
-		ID:         uuid.NewString(),
-		InstanceID: instanceID,
-		Channel:    channel,
-		Event:      event,
-		Data:       data,
+		ID:       uuid.NewString(),
+		Instance: instance,
+		Channel:  channel,
+		Event:    event,
+		Data:     data,
 	}
 }
 
@@ -34,12 +35,14 @@ func (m *Message) loadData() {
 	}
 }
 
+// Format ...
 func (m Message) Format() string {
 	m.loadData()
 	data := getData(m.Data)
 	return fmt.Sprintf("id: %s\nevent: %s\ndata: %s\n\n", m.ID, m.Event, data)
 }
 
+// JSON ...
 func (m Message) JSON() string {
 	m.loadData()
 	return string(helpers.ToBytes(m))
