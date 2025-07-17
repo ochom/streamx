@@ -81,11 +81,11 @@ func (c *Client) Listen(ctx *fasthttp.RequestCtx, channel *Channel, w *bufio.Wri
 
 		switch msg.Event {
 		case "keep-alive":
-			logs.Debug("message sent==> client: %s, message: %s", c.id, msg.JSON())
+			logs.Debug("client kept alive: %s", c.id)
 		case "welcome":
-			logs.Warn("message sent==> client: %s, message: %s", c.id, msg.JSON())
+			logs.Warn("new client joined: %s ", c.id)
 		default:
-			logs.Info("message sent==> client: %s, message: %s", c.id, msg.JSON())
+			logs.Info("message sent: %s", msg.JSON())
 		}
 	}
 

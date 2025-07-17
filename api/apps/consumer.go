@@ -58,6 +58,4 @@ func sendMessage(poolID string, message *dto.Message) {
 	for _, client := range clientList {
 		client.AddMessage(message)
 	}
-
-	logs.Info("sending message ==> pool: %s, clients: %d", poolID, len(clientList))
 }
