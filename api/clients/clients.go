@@ -18,8 +18,8 @@ type Client struct {
 	messages chan *dto.Message
 }
 
-// NewClient ...
-func NewClient(poolID string) *Client {
+// newClient ...
+func newClient(poolID string) *Client {
 	client := &Client{
 		id:       uuid.NewString(),
 		poolID:   poolID,

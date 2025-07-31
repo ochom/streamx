@@ -28,6 +28,10 @@ func HandlePublish(c *fiber.Ctx) error {
 		return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 
+	if message.Channel == "" {
+		message.Channel = constants.DefaultChannel
+	}
+
 	if message.ID == "" {
 		message.ID = uuid.New()
 	}

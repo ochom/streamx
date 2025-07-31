@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/streamx/core/clients"
+	"github.com/streamx/core/constants"
 	"github.com/streamx/core/utils"
 	"github.com/valyala/fasthttp"
 )
@@ -26,11 +27,13 @@ func HandleSubscription(c *fiber.Ctx) error {
 	ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
 	ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
-	channelID := utils.GetPoolID(c.Params("instanceID"), c.Params("channelID"))
-	client := clients.NewClient(channelID)
+	instanceID := c.Params("instanceID", constants.DefaultInstance)
+	channelID := c.Params("channelID", constants.DefaultChannel)
 
-	channel := clients.GetChannel(channelID)
-	channel.AddClient(client)
+	poolID := utils.GetPoolID(instanceID, channelID)
+
+	channel := clients.GetChannel(poolID)
+	client := channel.AddClient(poolID)
 
 	ctx.SetBodyStreamWriter(fasthttp.StreamWriter(func(w *bufio.Writer) {
 		client.Listen(ctx, channel, w)

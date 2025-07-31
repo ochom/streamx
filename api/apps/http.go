@@ -22,6 +22,7 @@ func RunHttpServer() {
 	})
 
 	app.Get("/subscribe/:apiKey/:instanceID/:channelID", controllers.HandleSubscription)
+	app.Get("/subscribe/:channelID", controllers.HandleSubscription)
 	app.Post("/publish", controllers.HandlePublish)
 
 	logs.Info("[X] Starting the HTTP server")
