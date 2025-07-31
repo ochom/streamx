@@ -14,17 +14,13 @@ import (
 
 // HandlePublish ...
 func HandlePublish(c *fiber.Ctx) error {
-	apiKey := c.Get("Authorization")
-	if apiKey == "" {
-		return c.Status(401).JSON(fiber.Map{"status": "error", "message": "unauthorized, missing api key"})
-	}
 
 	var message dto.Message
 	if err := c.BodyParser(&message); err != nil {
 		return c.JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 
-	if err := validateClient(apiKey); err != nil {
+	if err := validateClient(c.Get("Authorization")); err != nil {
 		return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 

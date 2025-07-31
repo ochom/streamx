@@ -12,8 +12,7 @@ import (
 
 // HandleSubscription ...
 func HandleSubscription(c *fiber.Ctx) error {
-	// validate api key and instance id
-	if err := validateClient(c.Params("apiKey")); err != nil {
+	if err := validateClient(c.Get("Authorization")); err != nil {
 		return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
 	}
 
