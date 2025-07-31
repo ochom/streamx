@@ -13,12 +13,10 @@
   <h2>Our Message: <b id="message"></b></h2>
 
   <script type="module">
-    import Stream from 'https://cdn.jsdelivr.net/npm/streamx-js@1.0.12';
-    // import Stream from "./js/main.mjs"
+    // import Stream from 'https://cdn.jsdelivr.net/npm/streamx-js@1.0.13';
+    import Stream from "./js/main.mjs"
 
     const stream = new Stream({
-      apiKey: '6793a7f3181da8429e2db19c',
-      instanceID: 'd67e4f56-cd45-4f0d-b5c6-6b6fdffe2cf6',
       pollInterval: 30,
     })
 
@@ -48,8 +46,18 @@
       addNewMessage(JSON.stringify(data));
     });
 
+    stream.on("message", (data) => {
+      console.log('Message received:', data);
+      addNewMessage(JSON.stringify(data));
+    });
+
+    stream.on('welcome', (data) => {
+      console.log('Welcome message received:', data);
+      addNewMessage(JSON.stringify(data));
+    });
+
     // listen to a specific channel
-    stream.listen('6797df26181ea387f20654df')
+    stream.listen('accounts')
   </script>
 </body>
 
