@@ -8,7 +8,7 @@ import (
 
 // validateClient ...
 func validateClient(apiKey string) error {
-	if key := env.Get("API_KEY"); key != apiKey {
+	if key := env.Get("STREAMING_API_KEY"); key != apiKey {
 		return errors.New("unauthorized, invalid api key")
 	}
 
