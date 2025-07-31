@@ -32,6 +32,10 @@ func HandlePublish(c *fiber.Ctx) error {
 		message.Channel = constants.DefaultChannel
 	}
 
+	if message.Instance == "" {
+		message.Instance = constants.DefaultInstance
+	}
+
 	if message.ID == "" {
 		message.ID = uuid.New()
 	}
