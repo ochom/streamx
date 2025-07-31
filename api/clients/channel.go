@@ -20,11 +20,13 @@ func NewChannel(id string) *Channel {
 }
 
 // AddClient ...
-func (c *Channel) AddClient(client *Client) {
+func (c *Channel) AddClient(poolID string) *Client {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
+	client := newClient(poolID)
 	c.clients[client.id] = client
+	return client
 }
 
 // RemoveClient ...
