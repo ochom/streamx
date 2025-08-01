@@ -12,12 +12,7 @@ import (
 
 // HandleSubscription ...
 func HandleSubscription(c *fiber.Ctx) error {
-	if err := validateClient(c.Get("Authorization")); err != nil {
-		return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
-	}
-
 	ctx := c.Context()
-
 	ctx.SetContentType("text/event-stream")
 	ctx.Response.Header.Set("Cache-Control", "no-cache")
 	ctx.Response.Header.Set("Connection", "keep-alive")
