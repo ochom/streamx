@@ -26,8 +26,6 @@ module.exports = __toCommonJS(main_exports);
 var StreamX = class {
   constructor(config) {
     this.config = {
-      apiKey: "",
-      instanceID: "",
       channel: "ABC",
       baseUrl: "https://api.streamx.co.ke",
       pollInterval: 30 * 60
@@ -38,20 +36,7 @@ var StreamX = class {
     this.eventSource = void 0;
     this.prevEventSource = void 0;
     this.config = { ...this.config, ...config };
-    this.validate();
     this.poll();
-  }
-  /**
-   * Validates the configuration to ensure required fields are present.
-   * Throws an error if any required field is missing.
-   */
-  validate() {
-    if (!this.config.apiKey) {
-      throw new Error("apiKey is required");
-    }
-    if (!this.config.instanceID) {
-      throw new Error("instanceID is required");
-    }
   }
   /**
    * Starts polling for updates at the specified interval.
@@ -81,7 +66,7 @@ var StreamX = class {
     if (this.eventSource) {
       this.prevEventSource = this.eventSource;
     }
-    const url = `${this.config.baseUrl}/subscribe/${this.config.apiKey}/${this.config.instanceID}/${this.config.channel}`;
+    const url = `${this.config.baseUrl}/subscribe/${this.config.channel}`;
     this.eventSource = new EventSource(url);
     for (const event of this.events) {
       this.eventSource.addEventListener(
