@@ -1,8 +1,6 @@
 export type callBackFunc = (event: any) => void;
 
 export type Config = {
-  apiKey: string;
-  instanceID: string;
   channel?: string;
   baseUrl?: string;
   pollInterval?: number;
@@ -44,8 +42,6 @@ export type Event = {
  */
 export default class StreamX {
   private config: Config = {
-    apiKey: "",
-    instanceID: "",
     channel: "ABC",
     baseUrl: "https://api.streamx.co.ke",
     pollInterval: 30 * 60, // 30 minutes
@@ -58,22 +54,7 @@ export default class StreamX {
 
   constructor(config: Config) {
     this.config = { ...this.config, ...config };
-    this.validate();
     this.poll();
-  }
-
-  /**
-   * Validates the configuration to ensure required fields are present.
-   * Throws an error if any required field is missing.
-   */
-  private validate() {
-    if (!this.config.apiKey) {
-      throw new Error("apiKey is required");
-    }
-
-    if (!this.config.instanceID) {
-      throw new Error("instanceID is required");
-    }
   }
 
   /**
@@ -113,7 +94,7 @@ export default class StreamX {
     }
 
     // Create a new instance of EventSource
-    const url = `${this.config.baseUrl}/subscribe/${this.config.apiKey}/${this.config.instanceID}/${this.config.channel}`;
+    const url = `${this.config.baseUrl}/subscribe/${this.config.channel}`;
     this.eventSource = new EventSource(url);
 
     // Add all existing event listeners to the new stream

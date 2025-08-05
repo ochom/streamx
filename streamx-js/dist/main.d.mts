@@ -1,7 +1,5 @@
 type callBackFunc = (event: any) => void;
 type Config = {
-    apiKey: string;
-    instanceID: string;
     channel?: string;
     baseUrl?: string;
     pollInterval?: number;
@@ -46,11 +44,6 @@ declare class StreamX {
     private eventSource?;
     private prevEventSource?;
     constructor(config: Config);
-    /**
-     * Validates the configuration to ensure required fields are present.
-     * Throws an error if any required field is missing.
-     */
-    private validate;
     /**
      * Starts polling for updates at the specified interval.
      * If pollInterval is not set, defaults to 30 minutes.

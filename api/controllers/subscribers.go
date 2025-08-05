@@ -12,12 +12,7 @@ import (
 
 // HandleSubscription ...
 func HandleSubscription(c *fiber.Ctx) error {
-	if err := validateClient(c.Get("Authorization")); err != nil {
-		return c.Status(401).JSON(fiber.Map{"status": "error", "message": err.Error()})
-	}
-
 	ctx := c.Context()
-
 	ctx.SetContentType("text/event-stream")
 	ctx.Response.Header.Set("Cache-Control", "no-cache")
 	ctx.Response.Header.Set("Connection", "keep-alive")
@@ -26,10 +21,10 @@ func HandleSubscription(c *fiber.Ctx) error {
 	ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
 	ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
-	instanceID := c.Params("instanceID", constants.DefaultInstance)
-	channelID := c.Params("channelID", constants.DefaultChannel)
-
-	poolID := utils.GetPoolID(instanceID, channelID)
+	poolID := utils.GetPoolID(
+		constants.DefaultInstance,
+		c.Params("channelID", constants.DefaultChannel),
+	)
 
 	channel := clients.GetChannel(poolID)
 	client := channel.AddClient(poolID)
