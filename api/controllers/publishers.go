@@ -24,10 +24,6 @@ func HandlePublish(c *fiber.Ctx) error {
 		message.Channel = constants.DefaultChannel
 	}
 
-	if message.Instance == "" {
-		message.Instance = constants.DefaultInstance
-	}
-
 	if message.ID == "" {
 		message.ID = uuid.New()
 	}
@@ -35,6 +31,8 @@ func HandlePublish(c *fiber.Ctx) error {
 	if message.Event == "" {
 		message.Event = "message"
 	}
+
+	message.Instance = constants.DefaultInstance
 
 	go postMessage(c.Context(), message)
 	return c.JSON(fiber.Map{"status": "ok"})
