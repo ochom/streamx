@@ -21,10 +21,10 @@ func HandleSubscription(c *fiber.Ctx) error {
 	ctx.Response.Header.Set("Access-Control-Allow-Headers", "Cache-Control")
 	ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
-	instanceID := c.Params("instanceID", constants.DefaultInstance)
-	channelID := c.Params("channelID", constants.DefaultChannel)
-
-	poolID := utils.GetPoolID(instanceID, channelID)
+	poolID := utils.GetPoolID(
+		constants.DefaultInstance,
+		c.Params("channelID", constants.DefaultChannel),
+	)
 
 	channel := clients.GetChannel(poolID)
 	client := channel.AddClient(poolID)
