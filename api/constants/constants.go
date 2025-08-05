@@ -1,7 +1,7 @@
 package constants
 
 const (
-	ChannelName     = "streamx_channel"
-	DefaultChannel  = "streamx-default-channel"
-	DefaultInstance = "streamx-default-instance"
+	PubSubChannelName   = "streamx_channel"
+	DefaultUserInstance = "streamx-default-instance"
+	DefaultUserChannel  = "streamx-default-channel"
 )

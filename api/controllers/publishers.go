@@ -21,7 +21,7 @@ func HandlePublish(c *fiber.Ctx) error {
 	}
 
 	if message.Channel == "" {
-		message.Channel = constants.DefaultChannel
+		message.Channel = constants.DefaultUserChannel
 	}
 
 	if message.ID == "" {
@@ -32,7 +32,7 @@ func HandlePublish(c *fiber.Ctx) error {
 		message.Event = "message"
 	}
 
-	message.Instance = constants.DefaultInstance
+	message.Instance = constants.DefaultUserInstance
 
 	go postMessage(c.Context(), message)
 	return c.JSON(fiber.Map{"status": "ok"})
@@ -41,7 +41,7 @@ func HandlePublish(c *fiber.Ctx) error {
 // postMessage push message to queue
 func postMessage(ctx context.Context, message dto.Message) {
 	client := services.GetRedisClient()
-	err := client.Publish(ctx, constants.ChannelName, helpers.ToBytes(message)).Err()
+	err := client.Publish(ctx, constants.PubSubChannelName, helpers.ToBytes(message)).Err()
 	if err != nil {
 		logs.Error("failed to publish message to Redis: %s", err.Error())
 	}

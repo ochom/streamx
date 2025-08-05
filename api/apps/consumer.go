@@ -22,7 +22,7 @@ func RunConsumers() {
 
 	ctx := context.Background()
 	client := services.GetRedisClient()
-	subscription := client.Subscribe(ctx, constants.ChannelName)
+	subscription := client.Subscribe(ctx, constants.PubSubChannelName)
 
 	for {
 		msg, err := subscription.ReceiveMessage(ctx)
