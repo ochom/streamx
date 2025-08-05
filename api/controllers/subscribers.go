@@ -23,7 +23,7 @@ func HandleSubscription(c *fiber.Ctx) error {
 
 	poolID := utils.GetPoolID(
 		constants.DefaultUserInstance,
-		c.Params("channelID", constants.DefaultUserChannel),
+		c.Params("channelID"),
 	)
 
 	channel := clients.GetChannel(poolID)

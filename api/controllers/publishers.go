@@ -21,7 +21,7 @@ func HandlePublish(c *fiber.Ctx) error {
 	}
 
 	if message.Channel == "" {
-		message.Channel = constants.DefaultUserChannel
+		return c.JSON(fiber.Map{"status": "error", "message": "channel is required"})
 	}
 
 	if message.ID == "" {
