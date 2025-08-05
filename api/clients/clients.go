@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/ochom/gutils/logs"
 	"github.com/streamx/core/apps/dto"
-	"github.com/streamx/core/utils"
 	"github.com/valyala/fasthttp"
 )
 
@@ -38,8 +37,7 @@ func (c *Client) welcome() {
 		"time":    time.Now().Format(time.RFC3339),
 	}
 
-	instance, channel := utils.GetPoolDetails(c.poolID)
-	msg := dto.NewMessage(instance, channel, "welcome", data)
+	msg := dto.NewMessage(c.poolID, "welcome", data)
 	c.AddMessage(msg)
 }
 
@@ -50,8 +48,7 @@ func (c *Client) KeepAlive() {
 		"time":    time.Now().Format(time.RFC3339),
 	}
 
-	instance, channel := utils.GetPoolDetails(c.poolID)
-	msg := dto.NewMessage(instance, channel, "keep-alive", data)
+	msg := dto.NewMessage(c.poolID, "keep-alive", data)
 	c.AddMessage(msg)
 }
 

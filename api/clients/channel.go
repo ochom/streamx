@@ -11,8 +11,8 @@ type Channel struct {
 	mux     sync.Mutex
 }
 
-// NewChannel ...
-func NewChannel(id string) *Channel {
+// newChannel ...
+func newChannel(id string) *Channel {
 	return &Channel{
 		id:      id,
 		clients: make(map[string]*Client),
@@ -20,11 +20,11 @@ func NewChannel(id string) *Channel {
 }
 
 // AddClient ...
-func (c *Channel) AddClient(poolID string) *Client {
+func (c *Channel) AddClient() *Client {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 
-	client := newClient(poolID)
+	client := newClient(c.id)
 	c.clients[client.id] = client
 	return client
 }

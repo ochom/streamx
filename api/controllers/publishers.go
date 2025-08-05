@@ -32,8 +32,6 @@ func HandlePublish(c *fiber.Ctx) error {
 		message.Event = "message"
 	}
 
-	message.Instance = constants.DefaultUserInstance
-
 	go postMessage(c.Context(), message)
 	return c.JSON(fiber.Map{"status": "ok"})
 }
