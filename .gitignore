@@ -1,5 +1,6 @@
-*.db
+*.db*
 *.env
 *.sh
 tmp/
 node_modules
+*.txt

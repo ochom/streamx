@@ -9,22 +9,20 @@ import (
 
 // Message ...
 type Message struct {
-	ID       string `json:"id"`
-	Instance string `json:"instance"`
-	Channel  string `json:"channel"`
-	Event    string `json:"event"`
-	Data     any    `json:"data"`
-	Message  any    `json:"message,omitempty"` // Deprecated, use Data instead
+	ID      string `json:"id"`
+	Channel string `json:"channel"`
+	Event   string `json:"event"`
+	Data    any    `json:"data"`
+	Message any    `json:"message,omitempty"` // Deprecated, use Data instead
 }
 
 // NewMessage ...
-func NewMessage(instance, channel, event string, data any) *Message {
+func NewMessage(channel, event string, data any) *Message {
 	return &Message{
-		ID:       uuid.NewString(),
-		Instance: instance,
-		Channel:  channel,
-		Event:    event,
-		Data:     data,
+		ID:      uuid.NewString(),
+		Channel: channel,
+		Event:   event,
+		Data:    data,
 	}
 }
 

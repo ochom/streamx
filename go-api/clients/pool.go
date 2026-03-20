@@ -18,26 +18,26 @@ func init() {
 }
 
 // GetChannel ...
-func GetChannel(poolID string) *Channel {
+func GetChannel(channelID string) *Channel {
 	pool.mux.Lock()
 	defer pool.mux.Unlock()
 
-	if _, ok := pool.clients[poolID]; !ok {
-		channel := NewChannel(poolID)
-		pool.clients[poolID] = channel
+	if _, ok := pool.clients[channelID]; !ok {
+		channel := newChannel(channelID)
+		pool.clients[channelID] = channel
 		return channel
 	}
 
-	return pool.clients[poolID]
+	return pool.clients[channelID]
 }
 
 // DeleteChannel ...
-func DeleteChannel(poolID string) {
+func DeleteChannel(channelID string) {
 	pool.mux.Lock()
 	defer pool.mux.Unlock()
 
 	clients := pool.clients
-	delete(clients, poolID)
+	delete(clients, channelID)
 
 	pool.clients = clients
 }
@@ -57,12 +57,12 @@ func GetClients() []*Client {
 	return clients
 }
 
-// GetClientsByPoolID ...
-func GetClientsByPoolID(poolID string) []*Client {
+// GetClientsByChannelID ...
+func GetClientsByChannelID(channelID string) []*Client {
 	pool.mux.Lock()
 	defer pool.mux.Unlock()
 
-	channel, ok := pool.clients[poolID]
+	channel, ok := pool.clients[channelID]
 	if !ok {
 		return []*Client{}
 	}
