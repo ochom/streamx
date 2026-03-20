@@ -1,11 +1,14 @@
+import { join } from "path";
 import Index from "./src/app/index.html";
 import { sseEvents, subcribeToChannel } from "./src/core/clients";
 import { AddMessageCount } from "./src/core/database";
 import type { Message } from "./src/core/types";
 
+const isDev = process.env.NODE_ENV === "development";
+
 const server = Bun.serve({
   port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
-  development: process.env.NODE_ENV === "development",
+  development: isDev,
   routes: {
     "/": Index,
     "/auth": {
@@ -48,6 +51,16 @@ const server = Bun.serve({
       const { channelID } = req.params;
       return subcribeToChannel(channelID, req);
     },
+  },
+  // Serve static assets (CSS/JS) for unmatched routes in production
+  async fetch(req) {
+    const url = new URL(req.url);
+    const filePath = join(import.meta.dir, url.pathname);
+    const file = Bun.file(filePath);
+    if (await file.exists()) {
+      return new Response(file);
+    }
+    return new Response("Not Found", { status: 404 });
   },
 });
 console.log(`SSE server running at http://localhost:${server.port}`);

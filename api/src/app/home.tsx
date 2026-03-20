@@ -100,64 +100,40 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">
-        Stream Dashboard
-      </h1>
+    <div className="dashboard">
+      <h1 className="dashboard-title">Stream Dashboard</h1>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-            Active Last Hour
-          </p>
-          <p className="text-3xl font-bold text-blue-600 mt-2">
-            {appState.active_clients}
-          </p>
+      <div className="stats-grid">
+        <div className="stat-card">
+          <p className="stat-label">Active Last Hour</p>
+          <p className="stat-value blue">{appState.active_clients}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-            Active Last 6 Hours
-          </p>
-          <p className="text-3xl font-bold text-green-600 mt-2">
-            {appState.active_last_hour}
-          </p>
+        <div className="stat-card">
+          <p className="stat-label">Active Last 6 Hours</p>
+          <p className="stat-value green">{appState.active_last_hour}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-            Active Last 24 Hours
-          </p>
-          <p className="text-3xl font-bold text-purple-600 mt-2">
-            {appState.active_last_24_hours}
-          </p>
+        <div className="stat-card">
+          <p className="stat-label">Active Last 24 Hours</p>
+          <p className="stat-value purple">{appState.active_last_24_hours}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-            Messages Last Hour
-          </p>
-          <p className="text-3xl font-bold text-yellow-600 mt-2">
-            {appState.messages_last_hour}
-          </p>
+        <div className="stat-card">
+          <p className="stat-label">Messages Last Hour</p>
+          <p className="stat-value yellow">{appState.messages_last_hour}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-            Messages Last 24 Hours
-          </p>
-          <p className="text-3xl font-bold text-red-600 mt-2">
-            {appState.messages_last_24_hours}
-          </p>
+        <div className="stat-card">
+          <p className="stat-label">Messages Last 24 Hours</p>
+          <p className="stat-value red">{appState.messages_last_24_hours}</p>
         </div>
       </div>
 
       {/* Activity Chart */}
-      <div className="bg-white rounded-lg shadow-md p-6 overflow-hidden">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">
-          Activity Log
-        </h2>
+      <div className="chart-container">
+        <h2 className="chart-title">Activity Log</h2>
         {appState.activity.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No activity data yet</p>
+          <p className="chart-empty">No activity data yet</p>
         ) : (
-          <div className="relative h-64">
+          <div className="chart-wrapper">
             <Line
               data={{
                 labels: appState.activity.map((a) => a.timestamp),
