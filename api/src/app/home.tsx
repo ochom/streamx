@@ -36,6 +36,7 @@ type Acitvity = {
 type AppState = {
   active_clients: number;
   active_last_hour: number;
+  active_last_6_hours: number;
   active_last_24_hours: number;
   messages_last_hour: number;
   messages_last_24_hours: number;
@@ -57,6 +58,7 @@ const defaultActivity: Acitvity[] = Array.from(
 const defaultAppState: AppState = {
   active_clients: 0,
   active_last_hour: 0,
+  active_last_6_hours: 0,
   active_last_24_hours: 0,
   messages_last_hour: 0,
   messages_last_24_hours: 0,
@@ -106,24 +108,28 @@ export default function Home() {
       {/* Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card">
-          <p className="stat-label">Active Last Hour</p>
+          <p className="stat-label">Active Clients</p>
           <p className="stat-value blue">{appState.active_clients}</p>
         </div>
         <div className="stat-card">
-          <p className="stat-label">Active Last 6 Hours</p>
+          <p className="stat-label">Active Last Hour</p>
           <p className="stat-value green">{appState.active_last_hour}</p>
         </div>
         <div className="stat-card">
+          <p className="stat-label">Active Last 6 Hours</p>
+          <p className="stat-value purple">{appState.active_last_6_hours}</p>
+        </div>
+        <div className="stat-card">
           <p className="stat-label">Active Last 24 Hours</p>
-          <p className="stat-value purple">{appState.active_last_24_hours}</p>
+          <p className="stat-value yellow">{appState.active_last_24_hours}</p>
         </div>
         <div className="stat-card">
           <p className="stat-label">Messages Last Hour</p>
-          <p className="stat-value yellow">{appState.messages_last_hour}</p>
+          <p className="stat-value red">{appState.messages_last_hour}</p>
         </div>
         <div className="stat-card">
           <p className="stat-label">Messages Last 24 Hours</p>
-          <p className="stat-value red">{appState.messages_last_24_hours}</p>
+          <p className="stat-value orange">{appState.messages_last_24_hours}</p>
         </div>
       </div>
 
