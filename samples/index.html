@@ -13,9 +13,9 @@
 
     <script type="module">
       // import Stream from 'https://cdn.jsdelivr.net/npm/streamx-js@1.0.13';
-      import Stream from "./js/main.mjs";
+      import { StreamX } from "./js/main.mjs";
 
-      const stream = new Stream("http://localhost:3000", "test");
+      const stream = new StreamX("http://localhost:3000", "test");
       const addNewMessage = (message) => {
         const element = document.getElementById("message");
         element.innerHTML = message;
@@ -32,9 +32,6 @@
       stream.on("test", (data) => {
         addNewMessage(JSON.stringify(data));
       });
-
-      // listen to a specific channel
-      stream.listen("accounts");
     </script>
   </body>
 </html>
