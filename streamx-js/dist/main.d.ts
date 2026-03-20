@@ -8,4 +8,4 @@ declare class StreamX {
     destroy(): void;
 }
 
-export { StreamX as default };
+export { StreamX };
