@@ -5,7 +5,7 @@ import type { Message } from "./src/core/types";
 
 const server = Bun.serve({
   development: true,
-  port: 3000,
+  port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
   routes: {
     "/": Index,
     "/auth": {
