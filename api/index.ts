@@ -4,7 +4,6 @@ import { AddMessageCount } from "./src/core/database";
 import type { Message } from "./src/core/types";
 
 const server = Bun.serve({
-  development: true,
   port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
   routes: {
     "/": Index,
