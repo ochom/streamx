@@ -41,6 +41,18 @@ db.run(`
   CREATE UNIQUE INDEX IF NOT EXISTS idx_message_counts_time ON message_counts (date_time)
 `);
 
+// hourly delete records older than 30 days
+setInterval(
+  () => {
+    const cutoffTime = moment()
+      .subtract(30, "days")
+      .format("YYYY-MM-DD HH:mm:ss");
+    db.query(`DELETE FROM clients WHERE date_time < ?`).run(cutoffTime);
+    db.query(`DELETE FROM message_counts WHERE date_time < ?`).run(cutoffTime);
+  },
+  60 * 60 * 1000,
+);
+
 // AddClient sets the current client count in the database
 export async function AddClient(count: number) {
   const time = moment().format("YYYY-MM-DD HH:mm:ss");
