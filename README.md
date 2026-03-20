@@ -27,7 +27,7 @@ bun add streamx-js
 In your front-end, you can listen to messages like this
 
 ```js
-import StreamX from "streamx-js";
+import { StreamX } from "streamx-js";
 
 // Create a new StreamX instance
 // baseUrl: optional, defaults to "https://api.streamx.co.ke"

@@ -34,5 +34,5 @@ var StreamX = class {
   }
 };
 export {
-  StreamX as default
+  StreamX
 };
