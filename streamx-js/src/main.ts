@@ -1,4 +1,4 @@
-class StreamX {
+export default class StreamX {
   private baseUrl: string;
   private channel: string;
   private eventSource: EventSource | undefined;
@@ -38,5 +38,3 @@ class StreamX {
     }
   }
 }
-
-export default StreamX;

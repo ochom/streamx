@@ -33,7 +33,6 @@ var StreamX = class {
     }
   }
 };
-var main_default = StreamX;
 export {
-  main_default as default
+  StreamX as default
 };

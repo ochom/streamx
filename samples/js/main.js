@@ -20,7 +20,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/main.ts
 var main_exports = {};
 __export(main_exports, {
-  default: () => main_default
+  default: () => StreamX
 });
 module.exports = __toCommonJS(main_exports);
 var StreamX = class {
@@ -57,4 +57,3 @@ var StreamX = class {
     }
   }
 };
-var main_default = StreamX;
