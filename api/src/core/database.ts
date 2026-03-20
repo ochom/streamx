@@ -42,15 +42,14 @@ db.run(`
 `);
 
 // AddClient sets the current client count in the database
-export async function AddClient() {
-  const time = moment().format("YYYY-MM-DD HH:mm");
+export async function AddClient(count: number) {
+  const time = moment().format("YYYY-MM-DD HH:mm:ss");
   const stmt = db.query(
     `INSERT INTO clients (date_time, client_count) VALUES (?, ?)
-        ON CONFLICT(date_time) DO UPDATE SET client_count = client_count+1
+        ON CONFLICT(date_time) DO UPDATE SET client_count = ?
     `,
   );
-  stmt.run(time, 1);
-  console.log("clients count asjusted at", time);
+  stmt.run(time, count, count);
 }
 
 // AddMessageCount sets the current message count in the database
@@ -62,45 +61,37 @@ export async function AddMessageCount() {
     `,
   );
   stmt.run(time, 1);
-  console.log("message count asjusted at", time);
 }
 
 // GetClients returns client count from the given time
 export async function GetClients(hours: number) {
   const startTime = moment()
     .subtract(hours, "hours")
-    .format("YYYY-MM-DD HH:mm");
+    .format("YYYY-MM-DD HH:mm:ss");
   const stmt = db
     .query(
-      `SELECT date_time, client_count FROM clients WHERE date_time >= ? ORDER BY date_time DESC`,
+      `SELECT 
+        strftime('%Y-%m-%d %H:%M', date_time) as date_time, 
+        MAX(client_count) as client_count 
+      FROM clients WHERE date_time >= ? 
+      GROUP BY strftime('%Y-%m-%d %H:%M', date_time) 
+      ORDER BY date_time ASC`,
     )
     .as(ClientCount);
-  return stmt.all(startTime);
+  const resp = stmt.all(startTime);
+  return resp;
 }
 
 // CountClients returns the total client count in the database
 export async function CountClients(hours: number) {
   const stmt = db.query(
-    `SELECT SUM(client_count) as total FROM clients WHERE date_time >= ?`,
+    `SELECT Max(client_count) as total FROM clients WHERE date_time >= ?`,
   );
   const startTime = moment()
     .subtract(hours, "hours")
     .format("YYYY-MM-DD HH:mm");
   const result = stmt.get(startTime) as any;
   return result.total || 0;
-}
-
-// GetMessageCounts returns message count from the given time
-export async function GetMessageCounts(hours: number) {
-  const startTime = moment()
-    .subtract(hours, "hours")
-    .format("YYYY-MM-DD HH:mm");
-  const stmt = db
-    .query(
-      `SELECT date_time, message_count FROM message_counts WHERE date_time >= ? ORDER BY date_time DESC`,
-    )
-    .as(ClientCount);
-  return stmt.all(startTime);
 }
 
 // CountMessages returns the total message count in the database

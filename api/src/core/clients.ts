@@ -30,7 +30,7 @@ const pollClientCount = async () => {
     data: {
       active_clients: sseEvents.listenerCount("message"),
       active_last_hour: totalClientsHour,
-      active_last_6_hours: totalClientsHour,
+      active_last_6_hours: totalClients6Hours,
       active_last_24_hours: totalClients24Hours,
       messages_last_hour: messagesLastHour,
       messages_last_24_hours: messagesLast24Hours,
@@ -43,10 +43,6 @@ const pollClientCount = async () => {
 };
 
 setInterval(pollClientCount, 5 * 1000);
-
-const addClient = () => {
-  AddClient();
-};
 
 const sendMessage = (
   ctrl: Bun.ReadableStreamController<any>,
@@ -78,8 +74,10 @@ setInterval(() => {
   });
 }, 5000);
 
+// CountClients every second
+setInterval(() => AddClient(sseEvents.listenerCount("message")), 1000);
+
 function subcribeToChannel(channelId: string, req: Bun.BunRequest) {
-  addClient();
   let messageListener: (msg: Message) => void;
 
   const stream = new ReadableStream({

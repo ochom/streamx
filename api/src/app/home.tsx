@@ -112,15 +112,15 @@ export default function Home() {
           <p className="stat-value blue">{appState.active_clients}</p>
         </div>
         <div className="stat-card">
-          <p className="stat-label">Active Last Hour</p>
+          <p className="stat-label">Peak Last Hour</p>
           <p className="stat-value green">{appState.active_last_hour}</p>
         </div>
         <div className="stat-card">
-          <p className="stat-label">Active Last 6 Hours</p>
+          <p className="stat-label">Peak Last 6 Hours</p>
           <p className="stat-value purple">{appState.active_last_6_hours}</p>
         </div>
         <div className="stat-card">
-          <p className="stat-label">Active Last 24 Hours</p>
+          <p className="stat-label">Peak Last 24 Hours</p>
           <p className="stat-value yellow">{appState.active_last_24_hours}</p>
         </div>
         <div className="stat-card">
@@ -160,6 +160,10 @@ export default function Home() {
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                  mode: "index",
+                  intersect: false,
+                },
                 plugins: {
                   legend: {
                     display: false,
