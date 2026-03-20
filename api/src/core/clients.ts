@@ -28,8 +28,9 @@ const pollClientCount = async () => {
     channel: "stats",
     event: "message",
     data: {
-      active_clients: totalClientsHour,
-      active_last_hour: totalClients6Hours,
+      active_clients: sseEvents.listenerCount("message"),
+      active_last_hour: totalClientsHour,
+      active_last_6_hours: totalClientsHour,
       active_last_24_hours: totalClients24Hours,
       messages_last_hour: messagesLastHour,
       messages_last_24_hours: messagesLast24Hours,

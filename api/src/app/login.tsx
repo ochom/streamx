@@ -6,13 +6,11 @@ export default function Login({
   authenticate: (username: string, password: string) => Promise<void>;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Login
-        </h2>
+    <div className="login-container">
+      <div className="login-card">
+        <h2 className="login-title">Login</h2>
         <form
-          className="space-y-4"
+          className="login-form"
           onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
@@ -25,7 +23,8 @@ export default function Login({
             name="username"
             placeholder="Username"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            autoComplete="username"
+            className="input-field"
           />
           <input
             name="password"
@@ -33,12 +32,9 @@ export default function Login({
             placeholder="Password"
             required
             autoComplete="current-password"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="input-field"
           />
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 font-medium"
-          >
+          <button type="submit" className="btn-primary">
             Login
           </button>
         </form>
