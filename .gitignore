@@ -3,3 +3,4 @@
 *.sh
 tmp/
 node_modules
+*.txt
