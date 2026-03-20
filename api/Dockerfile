@@ -3,30 +3,14 @@
 ##
 ## Build
 ##
-FROM golang:1.24-alpine  AS build
+FROM oven/bun:latest AS build
 
 WORKDIR /app
 
-COPY go.* ./
-COPY go.sum ./
+COPY ./api .
 
-RUN go mod tidy
-
-COPY . ./
-
-RUN go build -o /server
-
-
-
-##
-## Deploy
-##
-FROM busybox:1.35.0-uclibc AS deploy
-
-WORKDIR /
-
-COPY --from=build /server .
+RUN bun install
 
 EXPOSE 8080
 
-CMD ["/server"]
+CMD [ "bun", "start" ]
