@@ -21,7 +21,7 @@ var StreamX = class {
         const data = JSON.parse(e.data);
         callback(data);
       } catch (error) {
-        console.error("Error parsing event data:", error);
+        console.debug("Error parsing event data:", error);
         callback({ data: e.data });
       }
     });
