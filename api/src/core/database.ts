@@ -61,7 +61,6 @@ export async function AddMessageCount() {
     `,
   );
   stmt.run(time, 1);
-  console.log("message count asjusted at", time);
 }
 
 // GetClients returns client count from the given time
@@ -71,19 +70,22 @@ export async function GetClients(hours: number) {
     .format("YYYY-MM-DD HH:mm:ss");
   const stmt = db
     .query(
-      `SELECT strftime('%Y-%m-%d %H:%M', date_time) as date_time, SUM(client_count) as client_count 
+      `SELECT 
+        strftime('%Y-%m-%d %H:%M', date_time) as date_time, 
+        MAX(client_count) as client_count 
       FROM clients WHERE date_time >= ? 
       GROUP BY strftime('%Y-%m-%d %H:%M', date_time) 
       ORDER BY date_time ASC`,
     )
     .as(ClientCount);
-  return stmt.all(startTime);
+  const resp = stmt.all(startTime);
+  return resp;
 }
 
 // CountClients returns the total client count in the database
 export async function CountClients(hours: number) {
   const stmt = db.query(
-    `SELECT SUM(client_count) as total FROM clients WHERE date_time >= ?`,
+    `SELECT Max(client_count) as total FROM clients WHERE date_time >= ?`,
   );
   const startTime = moment()
     .subtract(hours, "hours")
