@@ -11,8 +11,6 @@ sseEvents.setMaxListeners(0); // allow unlimited listeners
 const pollClientCount = async () => {
   const [
     clientHistory,
-    totalClientsHour,
-    totalClients6Hours,
     totalClients24Hours,
     messagesLastHour,
     messagesLast24Hours,
@@ -29,8 +27,6 @@ const pollClientCount = async () => {
     event: "message",
     data: {
       active_clients: sseEvents.listenerCount("message"),
-      active_last_hour: totalClientsHour,
-      active_last_6_hours: totalClients6Hours,
       active_last_24_hours: totalClients24Hours,
       messages_last_hour: messagesLastHour,
       messages_last_24_hours: messagesLast24Hours,
