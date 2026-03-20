@@ -9,7 +9,14 @@ WORKDIR /app
 
 COPY . .
 
-RUN bun install
+RUN bun install && \
+    bun run build
+
+FROM oven/bun:latest AS runner
+
+WORKDIR /app
+
+COPY --from=build /app/dist ./
 
 EXPOSE 8080
 
