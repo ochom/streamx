@@ -20,4 +20,4 @@ COPY --from=build /app/dist ./
 
 EXPOSE 8080
 
-CMD [ "bun", "start" ]
+CMD [ "bun", "index.js" ]
