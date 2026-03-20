@@ -7,7 +7,7 @@ FROM oven/bun:latest AS build
 
 WORKDIR /app
 
-COPY ./api .
+COPY . .
 
 RUN bun install
 
