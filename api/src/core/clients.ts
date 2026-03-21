@@ -1,12 +1,6 @@
 import { nanoid } from "nanoid";
 import { EventEmitter } from "node:events";
-import {
-  AddClient,
-  AddMessageCount,
-  CountClients,
-  CountMessages,
-  GetClients,
-} from "./database";
+import { AddClient, GetClients } from "./database";
 import type { Message } from "./types";
 
 const DefaultChannel = "default";
@@ -15,27 +9,12 @@ const sseEvents = new EventEmitter();
 sseEvents.setMaxListeners(0); // allow unlimited listeners
 
 const pollClientCount = async () => {
-  const [
-    clientHistory,
-    totalClients24Hours,
-    messagesLastHour,
-    messagesLast24Hours,
-  ] = await Promise.all([
-    GetClients(6),
-    CountClients(1),
-    CountClients(6),
-    CountClients(24),
-    CountMessages(1),
-    CountMessages(24),
-  ]);
+  const [clientHistory] = await Promise.all([GetClients(6)]);
   sseEvents.emit("message", {
     channel: "stats",
     event: "message",
     data: {
       active_clients: sseEvents.listenerCount("message"),
-      active_last_24_hours: totalClients24Hours,
-      messages_last_hour: messagesLastHour,
-      messages_last_24_hours: messagesLast24Hours,
       activity: clientHistory.map((entry) => ({
         timestamp: entry.date_time,
         clients: entry.client_count,
@@ -48,7 +27,7 @@ setInterval(pollClientCount, 5 * 1000);
 
 const emitMessage = async (message: Message) => {
   sseEvents.emit("message", message);
-  AddMessageCount();
+  // AddMessageCount();
 };
 
 const sendMessage = (
@@ -129,4 +108,4 @@ function subcribeToChannel(channelId: string, req: Bun.BunRequest) {
   });
 }
 
-export { sseEvents, subcribeToChannel, emitMessage };
+export { emitMessage, sseEvents, subcribeToChannel };
