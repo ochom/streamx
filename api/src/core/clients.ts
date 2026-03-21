@@ -1,6 +1,12 @@
 import { nanoid } from "nanoid";
 import { EventEmitter } from "node:events";
-import { AddClient, CountClients, CountMessages, GetClients } from "./database";
+import {
+  AddClient,
+  AddMessageCount,
+  CountClients,
+  CountMessages,
+  GetClients,
+} from "./database";
 import type { Message } from "./types";
 
 const DefaultChannel = "default";
@@ -39,6 +45,11 @@ const pollClientCount = async () => {
 };
 
 setInterval(pollClientCount, 5 * 1000);
+
+const emitMessage = async (message: Message) => {
+  sseEvents.emit("message", message);
+  AddMessageCount();
+};
 
 const sendMessage = (
   ctrl: Bun.ReadableStreamController<any>,
@@ -118,4 +129,4 @@ function subcribeToChannel(channelId: string, req: Bun.BunRequest) {
   });
 }
 
-export { sseEvents, subcribeToChannel };
+export { sseEvents, subcribeToChannel, emitMessage };

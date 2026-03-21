@@ -1,6 +1,6 @@
 import { join } from "path";
 import Index from "./src/app/index.html";
-import { sseEvents, subcribeToChannel } from "./src/core/clients";
+import { emitMessage, sseEvents, subcribeToChannel } from "./src/core/clients";
 import { AddMessageCount } from "./src/core/database";
 import type { Message } from "./src/core/types";
 
@@ -38,8 +38,7 @@ const server = Bun.serve({
           body.data = body.message;
         }
 
-        sseEvents.emit("message", body);
-        AddMessageCount();
+        emitMessage(body);
         return new Response("Message published");
       },
     },
