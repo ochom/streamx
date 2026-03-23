@@ -1,7 +1,6 @@
 import { join } from "path";
 import Index from "./src/app/index.html";
-import { emitMessage, sseEvents, subcribeToChannel } from "./src/core/clients";
-import { AddMessageCount } from "./src/core/database";
+import { emitMessage, subcribeToChannel } from "./src/core/clients";
 import type { Message } from "./src/core/types";
 
 const isDev = process.env.NODE_ENV === "development";
