@@ -63,7 +63,7 @@ setInterval(() => {
 // CountClients every second
 setInterval(() => AddClient(sseEvents.listenerCount("message")), 1000);
 
-function subcribeToChannel(channelId: string, req: Bun.BunRequest) {
+function subcribeToChannel(channelId: string, allowOrigin = "*") {
   let messageListener: (msg: Message) => void;
 
   const stream = new ReadableStream({
@@ -99,7 +99,7 @@ function subcribeToChannel(channelId: string, req: Bun.BunRequest) {
   return new Response(stream, {
     status: 200,
     headers: {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": allowOrigin,
       "Content-Type": "text/event-stream;charset=utf-8",
       "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",
