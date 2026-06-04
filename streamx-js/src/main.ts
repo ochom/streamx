@@ -1,10 +1,16 @@
-export class StreamX {
-  private baseUrl: string;
-  private channel: string;
+export abstract class StreamX {
+  private baseUrl: string = "https://api.streamx.co.ke";
+  private channel: string = "default";
   private eventSource: EventSource | undefined;
-  constructor(baseUrl?: string, channel?: string) {
-    this.baseUrl = baseUrl || "https://api.streamx.co.ke";
-    this.channel = channel || "default";
+  constructor(channel?: string, baseUrl?: string) {
+    if (channel) {
+      this.channel = channel;
+    }
+
+    if (baseUrl) {
+      this.baseUrl = baseUrl;
+    }
+
     this.conect(`${this.baseUrl}/subscribe/${this.channel}`);
   }
 
