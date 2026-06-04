@@ -145,7 +145,7 @@ const server = Bun.serve({
       }
 
       const { channelID } = req.params;
-      return subcribeToChannel(channelID, origin);
+      return subcribeToChannel(channelID, origin, req.signal);
     },
     /**
      * @deprecated This endpoint is deprecated and will be removed in future versions.
@@ -159,7 +159,7 @@ const server = Bun.serve({
       }
 
       const { channelID } = req.params;
-      return subcribeToChannel(channelID, origin);
+      return subcribeToChannel(channelID, origin, req.signal);
     },
   },
   // Serve static assets (CSS/JS) for unmatched routes in production
