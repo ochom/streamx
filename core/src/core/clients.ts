@@ -9,6 +9,7 @@ import {
 } from "./database";
 import type { Message } from "./types";
 
+const CLIENT_KEEP_ALIVE_INTERVAL = 5 * 1_000; // 5 seconds
 const DefaultChannel = "default";
 const MaxBlockedWrites = Number(process.env.PUBSUB_MAX_BLOCKED_WRITES ?? 10);
 
@@ -115,18 +116,13 @@ setInterval(() => {
     },
     event: "keep-alive",
   });
-}, 30 * 1_000); // 30 seconds
+}, CLIENT_KEEP_ALIVE_INTERVAL);
 
 // UpdateClientCount every second
 setInterval(() => UpdateClientCount(sseEvents.listenerCount("message")), 1000);
 
-function subcribeToChannel(
-  channelId: string,
-  allowOrigin = "*",
-  signal?: AbortSignal,
-) {
+function subcribeToChannel(channelId: string, allowOrigin = "*") {
   let messageListener: ((msg: Message) => void) | undefined;
-  let abortHandler: (() => void) | undefined;
   let cleaned = false;
   let blockedWrites = 0;
 
@@ -141,23 +137,12 @@ function subcribeToChannel(
       messageListener = undefined;
     }
 
-    if (signal && abortHandler) {
-      signal.removeEventListener("abort", abortHandler);
-      abortHandler = undefined;
-    }
-
     console.log(`Client unsubscribed from channel: ${channelId}`);
   };
 
   const stream = new ReadableStream({
     start(ctrl) {
       console.log(`Client subscribed to channel: ${channelId}`);
-
-      if (signal?.aborted) {
-        cleanup();
-        ctrl.close();
-        return;
-      }
 
       // Send welcome message on first connection
       const welcomeSent = sendMessage(ctrl, channelId, {
@@ -184,22 +169,18 @@ function subcribeToChannel(
 
         blockedWrites += 1;
         if (blockedWrites >= MaxBlockedWrites) {
+          console.warn(
+            `Max blocked writes reached for channel ${channelId}. Closing connection.`,
+          );
           cleanup();
           ctrl.close();
         }
       };
 
       sseEvents.on("message", messageListener);
-
-      if (signal) {
-        abortHandler = () => {
-          cleanup();
-          ctrl.close();
-        };
-        signal.addEventListener("abort", abortHandler, { once: true });
-      }
     },
     cancel() {
+      console.log(`Client connection cancelled for channel: ${channelId}`);
       cleanup();
     },
   });
