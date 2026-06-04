@@ -1,9 +1,12 @@
 tidy:
-	cd ./api && go mod tidy && cd ..
+	cd ./core && bun install \
+	&& cd ..
 
 dev:
-	cd ./api && air
+	cd ./core && bun dev \
+	&& cd ..
 
 lint:
 	@echo "Linting ..."
-	@cd ./api && golangci-lint run --timeout 5m
+	@cd ./core && bun lint \
+	&& cd ..

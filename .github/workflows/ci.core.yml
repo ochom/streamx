@@ -1,13 +1,13 @@
-name: "Build Api"
+name: "Build Core"
 "on":
   push:
     branches: [dev]
     paths:
-      - api/**
-      - .github/workflows/ci.api.yml
+      - core/**
+      - .github/workflows/ci.core.yml
 
 env:
-  WORKING_DIR: "api"
+  WORKING_DIR: "core"
 
 jobs:
   build:
