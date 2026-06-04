@@ -125,6 +125,7 @@ export default function Home() {
   });
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [connectionState, setConnectionState] = useState<
     "disconnected" | "connected"
   >("disconnected");
@@ -153,6 +154,23 @@ export default function Home() {
       disconnect();
     }
   }, [authenticated]);
+
+  useEffect(() => {
+    if (!loginModalOpen) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setLoginModalOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [loginModalOpen]);
 
   const fetchAppState = async () => {
     try {
@@ -211,6 +229,7 @@ export default function Home() {
     if (resp.ok) {
       window.localStorage.setItem(AUTH_STORAGE_KEY, "true");
       setAuthenticated(true);
+      setLoginModalOpen(false);
     } else {
       setAuthError("Authentication failed. Verify credentials and try again.");
     }
@@ -304,19 +323,21 @@ export default function Home() {
                 </p>
               </article>
             </div>
-          </div>
 
-          <aside className="hero-login">
-            <Login
-              authenticate={authenticate}
-              loading={authLoading}
-              error={authError}
-            />
-          </aside>
+            <div className="hero-cta-row">
+              <button
+                type="button"
+                className="btn-primary hero-login-btn"
+                onClick={() => setLoginModalOpen(true)}
+              >
+                Open Dashboard Login
+              </button>
+            </div>
+          </div>
         </section>
 
-        <section className="landing-panels">
-          <article className="panel-card">
+        <section className="landing-sections">
+          <article className="panel-card panel-wide">
             <h2>Architecture Flow</h2>
             <ol className="flow-list">
               <li>Producers POST event payloads to /publish.</li>
@@ -329,7 +350,7 @@ export default function Home() {
             </ol>
           </article>
 
-          <article className="panel-card" id="quickstart">
+          <article className="panel-card panel-wide" id="quickstart">
             <h2>Quickstart</h2>
             <CodeSnippet
               filename="quickstart.ts"
@@ -354,7 +375,7 @@ stream.on("order.created", (event) => {
             />
           </article>
 
-          <article className="panel-card" id="api-map">
+          <article className="panel-card panel-wide" id="api-map">
             <h2>API Surface</h2>
             <div className="endpoint-grid">
               <div>
@@ -382,6 +403,35 @@ stream.on("order.created", (event) => {
             </ul>
           </article>
         </section>
+
+        {loginModalOpen ? (
+          <div
+            className="modal-backdrop"
+            onClick={() => setLoginModalOpen(false)}
+          >
+            <div
+              className="modal-shell"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Dashboard login"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="modal-close"
+                aria-label="Close login modal"
+                onClick={() => setLoginModalOpen(false)}
+              >
+                ×
+              </button>
+              <Login
+                authenticate={authenticate}
+                loading={authLoading}
+                error={authError}
+              />
+            </div>
+          </div>
+        ) : null}
       </main>
     );
   }
