@@ -3,7 +3,7 @@ type Config = {
   topic?: string;
 };
 
-export abstract class StreamX {
+export class StreamX {
   private baseUrl: string = "https://api.streamx.co.ke";
   private channel?: string;
   private eventSource: EventSource | undefined;

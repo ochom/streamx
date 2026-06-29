@@ -2,7 +2,7 @@ type Config = {
     apiUrl?: string;
     topic?: string;
 };
-declare abstract class StreamX {
+declare class StreamX {
     private baseUrl;
     private channel?;
     private eventSource;
