@@ -1,23 +1,31 @@
+type Config = {
+  apiUrl?: string;
+  topic?: string;
+};
+
 export abstract class StreamX {
   private baseUrl: string = "https://api.streamx.co.ke";
-  private channel: string = "default";
+  private channel?: string;
   private eventSource: EventSource | undefined;
-  constructor(channel?: string, baseUrl?: string) {
-    if (channel) {
-      this.channel = channel;
+
+  constructor(cfg: Config) {
+    if (cfg.topic) {
+      this.channel = cfg.topic;
     }
 
-    if (baseUrl) {
-      this.baseUrl = baseUrl;
+    if (cfg.apiUrl) {
+      this.baseUrl = cfg.apiUrl;
     }
 
-    this.conect(`${this.baseUrl}/subscribe/${this.channel}`);
+    if (this.channel) {
+      this.conect(`${this.baseUrl}/subscribe/${this.channel}`);
+    }
   }
 
   private conect(url: string) {
     this.eventSource = new EventSource(url);
     this.eventSource.onopen = () => {
-      console.log("Connected to streamX");
+      console.log(`streamx listening to topic: ${this.channel}`);
     };
   }
 
@@ -37,10 +45,15 @@ export abstract class StreamX {
     });
   }
 
+  public listen(channel: string) {
+    this.channel = channel;
+    this.conect(`${this.baseUrl}/subscribe/${this.channel}`);
+  }
+
   public destroy() {
     if (this.eventSource) {
       this.eventSource.close();
-      console.log("StreamX connection closed");
+      console.log(`streamx connection closed`);
     }
   }
 }
