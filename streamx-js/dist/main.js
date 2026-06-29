@@ -26,6 +26,7 @@ module.exports = __toCommonJS(main_exports);
 var StreamX = class {
   constructor(cfg) {
     this.baseUrl = "https://api.streamx.co.ke";
+    if (!cfg) return;
     if (cfg.topic) {
       this.channel = cfg.topic;
     }

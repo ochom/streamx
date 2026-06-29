@@ -8,7 +8,9 @@ export abstract class StreamX {
   private channel?: string;
   private eventSource: EventSource | undefined;
 
-  constructor(cfg: Config) {
+  constructor(cfg?: Config) {
+    if (!cfg) return;
+
     if (cfg.topic) {
       this.channel = cfg.topic;
     }

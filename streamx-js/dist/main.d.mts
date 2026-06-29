@@ -6,7 +6,7 @@ declare abstract class StreamX {
     private baseUrl;
     private channel?;
     private eventSource;
-    constructor(cfg: Config);
+    constructor(cfg?: Config);
     private conect;
     on(event: string, callback: (data: any) => void): void;
     listen(channel: string): void;
