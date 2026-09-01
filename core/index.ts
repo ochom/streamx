@@ -135,16 +135,9 @@ const server = Bun.serve({
           message.data = message.message;
         }
 
-        let msgBody;
-        if (typeof message.data === "object") {
-          msgBody = JSON.stringify(message.data);
-        } else {
-          msgBody = String(message.data);
-        }
-
         await publish(message.topic, {
           event: message.topic,
-          data: msgBody,
+          data: message.data,
         });
         return new Response("Message published");
       },
