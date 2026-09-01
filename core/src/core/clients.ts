@@ -11,7 +11,7 @@ const sendMessage = (
 ) => {
   try {
     if (ctrl.desiredSize !== null && ctrl.desiredSize <= 0) {
-      return false;
+      throw new Error("Desired size is too small");
     }
 
     let msgBody;
@@ -26,6 +26,7 @@ const sendMessage = (
     );
     return true;
   } catch (e) {
+    console.error(e);
     return false;
   }
 };
