@@ -56,7 +56,7 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
       // Send welcome message on first connection
       const welcomeSent = sendMessage(ctrl, {
         data: "",
-        event: "welcome",
+        event: "ting",
       });
 
       if (!welcomeSent) {
