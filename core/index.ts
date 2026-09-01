@@ -1,5 +1,4 @@
 import { join } from "path";
-import Index from "./src/app/index.html";
 import { subcribeToChannel } from "./src/core/clients";
 import { publish } from "./src/core/redisClient";
 import type { Message } from "./src/core/types";
@@ -100,7 +99,6 @@ const server = Bun.serve({
   development: isDev,
   idleTimeout: 0,
   routes: {
-    "/": Index,
     "/auth": {
       POST: async (req) => {
         const { username, password } = await req.json();

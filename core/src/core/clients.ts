@@ -1,87 +1,9 @@
 import { nanoid } from "nanoid";
-import { EventEmitter } from "node:events";
-import {
-  AddMessageCount,
-  CountMessages,
-  GetClients,
-  GetMessageActivity,
-} from "./database";
 import { subscribe } from "./redisClient";
 import type { Message, SseEvent } from "./types";
 
-import { encode } from "cbor-x";
-
 const CLIENT_KEEP_ALIVE_INTERVAL = 5 * 1_000; // 5 seconds
-const DefaultChannel = "default";
 const MaxBlockedWrites = Number(process.env.PUBSUB_MAX_BLOCKED_WRITES ?? 10);
-
-const sseEvents = new EventEmitter();
-// Keep listener warnings enabled unless explicitly overridden.
-const maxListeners = Number(process.env.PUBSUB_MAX_LISTENERS ?? 1000);
-if (!Number.isNaN(maxListeners) && maxListeners > 0) {
-  sseEvents.setMaxListeners(maxListeners);
-}
-
-const pollClientCount = async () => {
-  const [
-    clientHistory,
-    messageActivity,
-    messagesLastHour,
-    messagesLast24Hours,
-  ] = await Promise.all([
-    GetClients(6),
-    GetMessageActivity(6),
-    CountMessages(1),
-    CountMessages(24),
-  ]);
-
-  const clients = clientHistory.map((entry) => entry.client_count);
-  const messageCounts = messageActivity.map((entry) => entry.message_count);
-  const peakClients = clients.length > 0 ? Math.max(...clients) : 0;
-  const avgClients =
-    clients.length > 0
-      ? Number(
-          (clients.reduce((sum, val) => sum + val, 0) / clients.length).toFixed(
-            2,
-          ),
-        )
-      : 0;
-  const peakMessagesPerMinute =
-    messageCounts.length > 0 ? Math.max(...messageCounts) : 0;
-  const totalMessages6h = messageCounts.reduce((sum, count) => sum + count, 0);
-
-  sseEvents.emit("message", {
-    channel: "stats",
-    event: "message",
-    data: {
-      active_clients: sseEvents.listenerCount("message"),
-      activity: clientHistory.map((entry) => ({
-        timestamp: entry.date_time,
-        clients: entry.client_count,
-      })),
-      message_activity: messageActivity.map((entry) => ({
-        timestamp: entry.date_time,
-        messages: entry.message_count,
-      })),
-      summary: {
-        peak_clients_6h: peakClients,
-        avg_clients_6h: avgClients,
-        messages_last_hour: messagesLastHour,
-        messages_last_24h: messagesLast24Hours,
-        peak_messages_per_minute_6h: peakMessagesPerMinute,
-        total_messages_6h: totalMessages6h,
-      },
-      received_at: new Date().toISOString(),
-    },
-  });
-};
-
-setInterval(pollClientCount, 5 * 1000);
-
-const emitMessage = async (message: Message) => {
-  await AddMessageCount();
-  sseEvents.emit("message", message);
-};
 
 const sendMessage = (
   ctrl: Bun.ReadableStreamController<any>,
@@ -94,8 +16,7 @@ const sendMessage = (
 
     let msgBody;
     if (typeof message.data === "object") {
-      const encoded = encode(message.data);
-      msgBody = String(encoded.buffer);
+      msgBody = JSON.stringify(message.data);
     } else {
       msgBody = String(message.data);
     }
@@ -121,7 +42,6 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
 
     cleaned = true;
     if (messageListener) {
-      sseEvents.off("message", messageListener);
       messageListener = undefined;
     }
 
@@ -198,4 +118,4 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
   });
 }
 
-export { emitMessage, sseEvents, subcribeToChannel };
+export { subcribeToChannel };
