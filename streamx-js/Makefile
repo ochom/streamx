@@ -1,6 +1,5 @@
 build:
-	npm run build \
-	&& cp -r dist/* ../samples/js/
+	npm run build
 
 deploy:
 	npm run deploy

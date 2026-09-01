@@ -11,6 +11,16 @@ class ClientCount {
   }
 }
 
+class MessageCount {
+  date_time: string;
+  message_count: number;
+
+  constructor(date_time: string, message_count: number) {
+    this.date_time = date_time;
+    this.message_count = message_count;
+  }
+}
+
 const db = new Database("./data/streamx.db");
 
 // Initialize the database schema
@@ -53,8 +63,8 @@ setInterval(
   60 * 60 * 1000,
 );
 
-// AddClient sets the current client count in the database
-export async function AddClient(count: number) {
+// UpdateClientCount sets the current client count in the database
+export async function UpdateClientCount(count: number) {
   const time = moment().format("YYYY-MM-DD HH:mm:ss");
   const stmt = db.query(
     `INSERT INTO clients (date_time, client_count) VALUES (?, ?)
@@ -116,4 +126,20 @@ export async function CountMessages(hours: number) {
     .format("YYYY-MM-DD HH:mm");
   const result = stmt.get(startTime) as any;
   return result.total || 0;
+}
+
+// GetMessageActivity returns message counts grouped by minute for the given window.
+export async function GetMessageActivity(hours: number) {
+  const startTime = moment()
+    .subtract(hours, "hours")
+    .format("YYYY-MM-DD HH:mm");
+  const stmt = db
+    .query(
+      `SELECT date_time, message_count
+       FROM message_counts
+       WHERE date_time >= ?
+       ORDER BY date_time ASC`,
+    )
+    .as(MessageCount);
+  return stmt.all(startTime);
 }
