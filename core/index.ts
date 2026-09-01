@@ -1,5 +1,5 @@
 import { join } from "path";
-import { subcribeToChannel } from "./src/core/clients";
+import { subscribeToChannel } from "./src/core/clients";
 import { publish } from "./src/core/redisClient";
 import type { Message } from "./src/core/types";
 
@@ -148,7 +148,7 @@ const server = Bun.serve({
       }
 
       const { channelID } = req.params;
-      return subcribeToChannel(channelID, origin);
+      return subscribeToChannel(channelID, origin);
     },
     /**
      * @deprecated This endpoint is deprecated and will be removed in future versions.
@@ -162,7 +162,7 @@ const server = Bun.serve({
       }
 
       const { channelID } = req.params;
-      return subcribeToChannel(channelID, origin);
+      return subscribeToChannel(channelID, origin);
     },
   },
   // Serve static assets (CSS/JS) for unmatched routes in production

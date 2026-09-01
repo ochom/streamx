@@ -31,7 +31,7 @@ const sendMessage = (
   }
 };
 
-function subcribeToChannel(channelId: string, allowOrigin = "*") {
+function subscribeToChannel(channelId: string, allowOrigin = "*") {
   let messageListener: ((msg: Message) => void) | undefined;
   let cleaned = false;
   let blockedWrites = 0;
@@ -119,4 +119,4 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
   });
 }
 
-export { subcribeToChannel };
+export { subscribeToChannel };
