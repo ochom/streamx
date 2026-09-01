@@ -1,7 +1,10 @@
 export type Message = {
   id?: string;
-  channel?: string;
+  topic: string;
+  message?: any; // Deprecated, use data instead
+} & SseEvent;
+
+export type SseEvent = {
   event: string;
   data: any;
-  message?: any; // Deprecated, use data instead
 };

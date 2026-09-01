@@ -1,6 +1,7 @@
 import { join } from "path";
 import Index from "./src/app/index.html";
-import { emitMessage, subcribeToChannel } from "./src/core/clients";
+import { subcribeToChannel } from "./src/core/clients";
+import { publish } from "./src/core/redisClient";
 import type { Message } from "./src/core/types";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -129,12 +130,22 @@ const server = Bun.serve({
           return unauthorized();
         }
 
-        const body = (await req.json()) as Message;
-        if (!body.data) {
-          body.data = body.message;
+        const message = (await req.json()) as Message;
+        if (!message.data) {
+          message.data = message.message;
         }
 
-        emitMessage(body);
+        let msgBody;
+        if (typeof message.data === "object") {
+          msgBody = JSON.stringify(message.data);
+        } else {
+          msgBody = String(message.data);
+        }
+
+        await publish(message.topic, {
+          event: message.topic,
+          data: msgBody,
+        });
         return new Response("Message published");
       },
     },

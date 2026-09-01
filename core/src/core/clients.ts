@@ -5,9 +5,9 @@ import {
   CountMessages,
   GetClients,
   GetMessageActivity,
-  UpdateClientCount,
 } from "./database";
-import type { Message } from "./types";
+import { subscribe } from "./redisClient";
+import type { Message, SseEvent } from "./types";
 
 const CLIENT_KEEP_ALIVE_INTERVAL = 5 * 1_000; // 5 seconds
 const DefaultChannel = "default";
@@ -83,13 +83,8 @@ const emitMessage = async (message: Message) => {
 
 const sendMessage = (
   ctrl: Bun.ReadableStreamController<any>,
-  channelId: string,
-  message: Message,
+  message: SseEvent,
 ) => {
-  if (message.channel !== channelId && message.channel !== DefaultChannel) {
-    return true; // Not intended for this channel, but not blocked either
-  }
-
   if (ctrl.desiredSize !== null && ctrl.desiredSize <= 0) {
     return false;
   }
@@ -106,18 +101,6 @@ const sendMessage = (
   );
   return true;
 };
-
-// Keep sending heartbeat every 5 seconds to prevent timeouts
-setInterval(() => {
-  sseEvents.emit("message", {
-    channel: DefaultChannel,
-    data: {},
-    event: "keep-alive",
-  });
-}, CLIENT_KEEP_ALIVE_INTERVAL);
-
-// UpdateClientCount every second
-setInterval(() => UpdateClientCount(sseEvents.listenerCount("message")), 1000);
 
 function subcribeToChannel(channelId: string, allowOrigin = "*") {
   let messageListener: ((msg: Message) => void) | undefined;
@@ -143,11 +126,8 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
       console.log(`Client subscribed to channel: ${channelId}`);
 
       // Send welcome message on first connection
-      const welcomeSent = sendMessage(ctrl, channelId, {
-        channel: channelId,
-        data: {
-          timestamp: new Date().toISOString(),
-        },
+      const welcomeSent = sendMessage(ctrl, {
+        data: {},
         event: "welcome",
       });
 
@@ -158,8 +138,8 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
       }
 
       // Create and store the listener for this specific connection
-      messageListener = (msg: Message) => {
-        const sent = sendMessage(ctrl, channelId, msg);
+      messageListener = (msg: SseEvent) => {
+        const sent = sendMessage(ctrl, msg);
         if (sent) {
           blockedWrites = 0;
           return;
@@ -175,7 +155,9 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
         }
       };
 
-      sseEvents.on("message", messageListener);
+      subscribe(channelId, (msg: string) => {
+        messageListener?.(JSON.parse(msg));
+      });
     },
     cancel() {
       console.log(`Client connection cancelled for channel: ${channelId}`);
