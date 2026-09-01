@@ -111,9 +111,7 @@ const sendMessage = (
 setInterval(() => {
   sseEvents.emit("message", {
     channel: DefaultChannel,
-    data: {
-      timestamp: new Date().toISOString(),
-    },
+    data: {},
     event: "keep-alive",
   });
 }, CLIENT_KEEP_ALIVE_INTERVAL);
