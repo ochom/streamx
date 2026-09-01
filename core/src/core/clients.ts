@@ -102,7 +102,7 @@ const sendMessage = (
   }
 
   ctrl.enqueue(
-    `id: ${nanoid()}\nevent: ${message.event}\ndata: ${msgBody}\nretry: 1000\n\n`,
+    `id: ${nanoid(5)}\nevent: ${message.event}\ndata: ${msgBody}\nretry: 1000\n\n`,
   );
   return true;
 };
