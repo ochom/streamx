@@ -85,21 +85,27 @@ const sendMessage = (
   ctrl: Bun.ReadableStreamController<any>,
   message: SseEvent,
 ) => {
-  if (ctrl.desiredSize !== null && ctrl.desiredSize <= 0) {
+  try {
+    if (ctrl.desiredSize !== null && ctrl.desiredSize <= 0) {
+      return false;
+    }
+
+    console.log("message ==>", message);
+
+    let msgBody;
+    if (typeof message.data === "object") {
+      msgBody = JSON.stringify(message.data);
+    } else {
+      msgBody = String(message.data);
+    }
+
+    ctrl.enqueue(
+      `id: ${nanoid(5)}\nevent: ${message.event}\ndata: ${msgBody}\nretry: 1000\n\n`,
+    );
+    return true;
+  } catch (e) {
     return false;
   }
-
-  let msgBody;
-  if (typeof message.data === "object") {
-    msgBody = JSON.stringify(message.data);
-  } else {
-    msgBody = String(message.data);
-  }
-
-  ctrl.enqueue(
-    `id: ${nanoid(5)}\nevent: ${message.event}\ndata: ${msgBody}\nretry: 1000\n\n`,
-  );
-  return true;
 };
 
 function subcribeToChannel(channelId: string, allowOrigin = "*") {
@@ -155,12 +161,14 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
         }
       };
 
-      setInterval(() => {
-        sendMessage(ctrl, {
-          data: {},
-          event: "heartbeat",
-        });
-      }, 10_000);
+      setInterval(
+        () =>
+          sendMessage(ctrl, {
+            data: {},
+            event: "heartbeat",
+          }),
+        10_000,
+      );
 
       subscribe(channelId, (msg: string) => {
         messageListener?.(JSON.parse(msg));
