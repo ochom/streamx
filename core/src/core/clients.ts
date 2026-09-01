@@ -9,6 +9,8 @@ import {
 import { subscribe } from "./redisClient";
 import type { Message, SseEvent } from "./types";
 
+import { encode } from "cbor-x";
+
 const CLIENT_KEEP_ALIVE_INTERVAL = 5 * 1_000; // 5 seconds
 const DefaultChannel = "default";
 const MaxBlockedWrites = Number(process.env.PUBSUB_MAX_BLOCKED_WRITES ?? 10);
@@ -90,11 +92,10 @@ const sendMessage = (
       return false;
     }
 
-    console.log("message ==>", message);
-
     let msgBody;
     if (typeof message.data === "object") {
-      msgBody = JSON.stringify(message.data);
+      const encoded = encode(message.data);
+      msgBody = String(encoded.buffer);
     } else {
       msgBody = String(message.data);
     }
@@ -133,7 +134,7 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
 
       // Send welcome message on first connection
       const welcomeSent = sendMessage(ctrl, {
-        data: {},
+        data: "",
         event: "welcome",
       });
 
@@ -164,8 +165,8 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
       setInterval(
         () =>
           sendMessage(ctrl, {
-            data: {},
-            event: "heartbeat",
+            data: "",
+            event: "tudu",
           }),
         10_000,
       );
