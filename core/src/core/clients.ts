@@ -155,6 +155,13 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
         }
       };
 
+      setInterval(() => {
+        sendMessage(ctrl, {
+          data: {},
+          event: "heartbeat",
+        });
+      }, 10_000);
+
       subscribe(channelId, (msg: string) => {
         messageListener?.(JSON.parse(msg));
       });

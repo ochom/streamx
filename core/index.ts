@@ -98,6 +98,7 @@ const isIPAllowed = (req: Request) => {
 const server = Bun.serve({
   port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
   development: isDev,
+  idleTimeout: 0,
   routes: {
     "/": Index,
     "/auth": {
