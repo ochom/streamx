@@ -1,125 +1,37 @@
 import { nanoid } from "nanoid";
-import { EventEmitter } from "node:events";
-import {
-  AddMessageCount,
-  CountMessages,
-  GetClients,
-  GetMessageActivity,
-  UpdateClientCount,
-} from "./database";
-import type { Message } from "./types";
+import { subscribe } from "./redisClient";
+import type { Message, SseEvent } from "./types";
 
 const CLIENT_KEEP_ALIVE_INTERVAL = 5 * 1_000; // 5 seconds
-const DefaultChannel = "default";
 const MaxBlockedWrites = Number(process.env.PUBSUB_MAX_BLOCKED_WRITES ?? 10);
-
-const sseEvents = new EventEmitter();
-// Keep listener warnings enabled unless explicitly overridden.
-const maxListeners = Number(process.env.PUBSUB_MAX_LISTENERS ?? 1000);
-if (!Number.isNaN(maxListeners) && maxListeners > 0) {
-  sseEvents.setMaxListeners(maxListeners);
-}
-
-const pollClientCount = async () => {
-  const [
-    clientHistory,
-    messageActivity,
-    messagesLastHour,
-    messagesLast24Hours,
-  ] = await Promise.all([
-    GetClients(6),
-    GetMessageActivity(6),
-    CountMessages(1),
-    CountMessages(24),
-  ]);
-
-  const clients = clientHistory.map((entry) => entry.client_count);
-  const messageCounts = messageActivity.map((entry) => entry.message_count);
-  const peakClients = clients.length > 0 ? Math.max(...clients) : 0;
-  const avgClients =
-    clients.length > 0
-      ? Number(
-          (clients.reduce((sum, val) => sum + val, 0) / clients.length).toFixed(
-            2,
-          ),
-        )
-      : 0;
-  const peakMessagesPerMinute =
-    messageCounts.length > 0 ? Math.max(...messageCounts) : 0;
-  const totalMessages6h = messageCounts.reduce((sum, count) => sum + count, 0);
-
-  sseEvents.emit("message", {
-    channel: "stats",
-    event: "message",
-    data: {
-      active_clients: sseEvents.listenerCount("message"),
-      activity: clientHistory.map((entry) => ({
-        timestamp: entry.date_time,
-        clients: entry.client_count,
-      })),
-      message_activity: messageActivity.map((entry) => ({
-        timestamp: entry.date_time,
-        messages: entry.message_count,
-      })),
-      summary: {
-        peak_clients_6h: peakClients,
-        avg_clients_6h: avgClients,
-        messages_last_hour: messagesLastHour,
-        messages_last_24h: messagesLast24Hours,
-        peak_messages_per_minute_6h: peakMessagesPerMinute,
-        total_messages_6h: totalMessages6h,
-      },
-      received_at: new Date().toISOString(),
-    },
-  });
-};
-
-setInterval(pollClientCount, 5 * 1000);
-
-const emitMessage = async (message: Message) => {
-  await AddMessageCount();
-  sseEvents.emit("message", message);
-};
 
 const sendMessage = (
   ctrl: Bun.ReadableStreamController<any>,
-  channelId: string,
-  message: Message,
+  message: SseEvent,
 ) => {
-  if (message.channel !== channelId && message.channel !== DefaultChannel) {
-    return true; // Not intended for this channel, but not blocked either
-  }
+  try {
+    if (ctrl.desiredSize !== null && ctrl.desiredSize <= 0) {
+      throw new Error("Desired size is too small");
+    }
 
-  if (ctrl.desiredSize !== null && ctrl.desiredSize <= 0) {
+    let msgBody;
+    if (typeof message.data === "object") {
+      msgBody = JSON.stringify(message.data);
+    } else {
+      msgBody = String(message.data);
+    }
+
+    ctrl.enqueue(
+      `id: ${nanoid(5)}\nevent: ${message.event}\ndata: ${msgBody}\nretry: 1000\n\n`,
+    );
+    return true;
+  } catch (e) {
+    console.error(e);
     return false;
   }
-
-  let msgBody;
-  if (typeof message.data === "object") {
-    msgBody = JSON.stringify(message.data);
-  } else {
-    msgBody = String(message.data);
-  }
-
-  ctrl.enqueue(
-    `id: ${nanoid(5)}\nevent: ${message.event}\ndata: ${msgBody}\nretry: 1000\n\n`,
-  );
-  return true;
 };
 
-// Keep sending heartbeat every 5 seconds to prevent timeouts
-setInterval(() => {
-  sseEvents.emit("message", {
-    channel: DefaultChannel,
-    data: {},
-    event: "keep-alive",
-  });
-}, CLIENT_KEEP_ALIVE_INTERVAL);
-
-// UpdateClientCount every second
-setInterval(() => UpdateClientCount(sseEvents.listenerCount("message")), 1000);
-
-function subcribeToChannel(channelId: string, allowOrigin = "*") {
+function subscribeToChannel(channelId: string, allowOrigin = "*") {
   let messageListener: ((msg: Message) => void) | undefined;
   let cleaned = false;
   let blockedWrites = 0;
@@ -131,7 +43,6 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
 
     cleaned = true;
     if (messageListener) {
-      sseEvents.off("message", messageListener);
       messageListener = undefined;
     }
 
@@ -143,12 +54,9 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
       console.log(`Client subscribed to channel: ${channelId}`);
 
       // Send welcome message on first connection
-      const welcomeSent = sendMessage(ctrl, channelId, {
-        channel: channelId,
-        data: {
-          timestamp: new Date().toISOString(),
-        },
-        event: "welcome",
+      const welcomeSent = sendMessage(ctrl, {
+        data: "",
+        event: "ting",
       });
 
       if (!welcomeSent) {
@@ -158,8 +66,8 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
       }
 
       // Create and store the listener for this specific connection
-      messageListener = (msg: Message) => {
-        const sent = sendMessage(ctrl, channelId, msg);
+      messageListener = (msg: SseEvent) => {
+        const sent = sendMessage(ctrl, msg);
         if (sent) {
           blockedWrites = 0;
           return;
@@ -175,7 +83,18 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
         }
       };
 
-      sseEvents.on("message", messageListener);
+      setInterval(
+        () =>
+          sendMessage(ctrl, {
+            data: "",
+            event: "tudu",
+          }),
+        10_000,
+      );
+
+      subscribe(channelId, (msg: string) => {
+        messageListener?.(JSON.parse(msg));
+      });
     },
     cancel() {
       console.log(`Client connection cancelled for channel: ${channelId}`);
@@ -200,4 +119,4 @@ function subcribeToChannel(channelId: string, allowOrigin = "*") {
   });
 }
 
-export { emitMessage, sseEvents, subcribeToChannel };
+export { subscribeToChannel };

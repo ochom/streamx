@@ -1,6 +1,6 @@
 import { join } from "path";
-import Index from "./src/app/index.html";
-import { emitMessage, subcribeToChannel } from "./src/core/clients";
+import { subscribeToChannel } from "./src/core/clients";
+import { publish } from "./src/core/redisClient";
 import type { Message } from "./src/core/types";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -97,8 +97,8 @@ const isIPAllowed = (req: Request) => {
 const server = Bun.serve({
   port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
   development: isDev,
+  idleTimeout: 0,
   routes: {
-    "/": Index,
     "/auth": {
       POST: async (req) => {
         const { username, password } = await req.json();
@@ -129,12 +129,15 @@ const server = Bun.serve({
           return unauthorized();
         }
 
-        const body = (await req.json()) as Message;
-        if (!body.data) {
-          body.data = body.message;
+        const message = (await req.json()) as Message;
+        if (!message.data) {
+          message.data = message.message;
         }
 
-        emitMessage(body);
+        await publish(message.topic, {
+          event: message.topic,
+          data: message.data,
+        });
         return new Response("Message published");
       },
     },
@@ -145,7 +148,7 @@ const server = Bun.serve({
       }
 
       const { channelID } = req.params;
-      return subcribeToChannel(channelID, origin);
+      return subscribeToChannel(channelID, origin);
     },
     /**
      * @deprecated This endpoint is deprecated and will be removed in future versions.
@@ -159,7 +162,7 @@ const server = Bun.serve({
       }
 
       const { channelID } = req.params;
-      return subcribeToChannel(channelID, origin);
+      return subscribeToChannel(channelID, origin);
     },
   },
   // Serve static assets (CSS/JS) for unmatched routes in production
