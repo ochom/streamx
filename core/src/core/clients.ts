@@ -55,7 +55,7 @@ function subscribeToChannel(channelId: string, allowOrigin = "*") {
 
       // Send welcome message on first connection
       const welcomeSent = sendMessage(ctrl, {
-        data: "",
+        data: {},
         event: "ting",
       });
 
@@ -86,7 +86,7 @@ function subscribeToChannel(channelId: string, allowOrigin = "*") {
       setInterval(
         () =>
           sendMessage(ctrl, {
-            data: "",
+            data: {},
             event: "tudu",
           }),
         10_000,
