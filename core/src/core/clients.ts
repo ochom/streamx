@@ -2,7 +2,6 @@ import { nanoid } from "nanoid";
 import { subscribe } from "./redisClient";
 import type { Message, SseEvent } from "./types";
 
-const CLIENT_KEEP_ALIVE_INTERVAL = 5 * 1_000; // 5 seconds
 const MaxBlockedWrites = Number(process.env.PUBSUB_MAX_BLOCKED_WRITES ?? 10);
 
 const sendMessage = (
@@ -11,7 +10,7 @@ const sendMessage = (
 ) => {
   try {
     if (ctrl.desiredSize !== null && ctrl.desiredSize <= 0) {
-      throw new Error("Desired size is too small");
+      return false;
     }
 
     let msgBody;
@@ -55,7 +54,7 @@ function subscribeToChannel(channelId: string, allowOrigin = "*") {
 
       // Send welcome message on first connection
       const welcomeSent = sendMessage(ctrl, {
-        data: "",
+        data: {},
         event: "ting",
       });
 
@@ -86,7 +85,7 @@ function subscribeToChannel(channelId: string, allowOrigin = "*") {
       setInterval(
         () =>
           sendMessage(ctrl, {
-            data: "",
+            data: {},
             event: "tudu",
           }),
         10_000,

@@ -1,15 +1,13 @@
 type Config = {
     apiUrl?: string;
-    topic?: string;
+    topic: string;
 };
-declare class StreamX {
-    private baseUrl;
-    private channel?;
-    private eventSource;
-    constructor(cfg?: Config);
-    private conect;
+declare class StreamX extends EventSource {
+    private baseUrl?;
+    constructor(cfg: Config);
+    isOpen(): boolean;
     on(event: string, callback: (data: any) => void): void;
-    listen(channel: string): void;
+    listen(newChannel: string): StreamX;
     destroy(): void;
 }
 

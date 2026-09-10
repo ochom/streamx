@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "NODE_ENV=development bun run index.ts",
+    "dev": "NODE_ENV=development bun --watch run index.ts",
     "build": "bun build ./index.ts --compile --minify --sourcemap --bytecode --outfile ./dist/my-app",
     "start": "./dist/my-app"
   },
