@@ -22,8 +22,8 @@ export const subscribe = async (
     const subscriber = await redisClient.duplicate();
     await subscriber.subscribe(channel, (message) => {
       callback(message);
+      subscriber.close();
     });
-    subscriber.close();
   } catch (error) {
     console.error("subscriber error ", error);
   }
