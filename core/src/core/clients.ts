@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { subscribe } from "./redisClient";
+import { subscribe } from "./pubsub";
 import type { Message, SseEvent } from "./types";
 
 const MaxBlockedWrites = Number(process.env.PUBSUB_MAX_BLOCKED_WRITES ?? 10);
@@ -32,6 +32,7 @@ const sendMessage = (
 
 function subscribeToChannel(channelId: string, allowOrigin = "*") {
   let messageListener: ((msg: Message) => void) | undefined;
+  let unsubscribe: () => void;
   let cleaned = false;
   let blockedWrites = 0;
 
@@ -45,6 +46,10 @@ function subscribeToChannel(channelId: string, allowOrigin = "*") {
       messageListener = undefined;
     }
 
+    if (unsubscribe) {
+      unsubscribe();
+    }
+
     console.log(`Client unsubscribed from channel: ${channelId}`);
   };
 
@@ -55,7 +60,7 @@ function subscribeToChannel(channelId: string, allowOrigin = "*") {
       // Send welcome message on first connection
       const welcomeSent = sendMessage(ctrl, {
         data: {},
-        event: "ting",
+        event: "welcome",
       });
 
       if (!welcomeSent) {
@@ -86,12 +91,12 @@ function subscribeToChannel(channelId: string, allowOrigin = "*") {
         () =>
           sendMessage(ctrl, {
             data: {},
-            event: "tudu",
+            event: "alive",
           }),
-        10_000,
+        15_000,
       );
 
-      subscribe(channelId, (msg: string) => {
+      unsubscribe = subscribe(channelId, (msg: string) => {
         messageListener?.(JSON.parse(msg));
       });
     },
