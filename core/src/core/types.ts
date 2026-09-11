@@ -1,8 +1,8 @@
 export type Message = {
   id?: string;
   topic: string;
-  message?: any; // Deprecated, use data instead
-} & SseEvent;
+  message: SseEvent;
+};
 
 export type SseEvent = {
   event: string;

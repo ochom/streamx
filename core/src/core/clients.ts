@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { subscribe } from "./pubsub";
-import type { Message, SseEvent } from "./types";
+import type { SseEvent } from "./types";
 
 const MaxBlockedWrites = Number(process.env.PUBSUB_MAX_BLOCKED_WRITES ?? 10);
 
@@ -31,7 +31,7 @@ const sendMessage = (
 };
 
 function subscribeToChannel(channelId: string, allowOrigin = "*") {
-  let messageListener: ((msg: Message) => void) | undefined;
+  let messageListener: ((msg: SseEvent) => void) | undefined;
   let unsubscribe: () => void;
   let cleaned = false;
   let blockedWrites = 0;

@@ -129,17 +129,7 @@ const server = Bun.serve({
         }
 
         const message = (await req.json()) as Message;
-        if (!message.data) {
-          message.data = message.message;
-        }
-
-        publish(
-          message.topic,
-          JSON.stringify({
-            event: message.event,
-            data: message.data,
-          }),
-        );
+        publish(message.topic, JSON.stringify(message.message));
         return new Response("Message published");
       },
     },
