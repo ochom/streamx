@@ -136,7 +136,7 @@ const server = Bun.serve({
         publish(
           message.topic,
           JSON.stringify({
-            event: message.topic,
+            event: message.event,
             data: message.data,
           }),
         );
