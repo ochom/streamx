@@ -156,14 +156,11 @@ const server = Bun.serve({
       const { channelID } = req.params;
       return subscribeToChannel(channelID, origin);
     },
-  },
-  fetch(req, server) {
-    const url = new URL(req.url);
-    if (url.pathname === "/ws") {
+    "/ws": async (req, server) => {
       const upgraded = server.upgrade(req);
       if (upgraded) return undefined;
-    }
-    return new Response("Upgrade failed", { status: 400 });
+      return new Response("Upgrade failed", { status: 400 });
+    },
   },
   websocket: {
     open(ws) {
