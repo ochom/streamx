@@ -128,8 +128,8 @@ const server = Bun.serve({
           return unauthorized();
         }
 
-        const message = (await req.json()) as Message;
-        publish(message.topic, JSON.stringify(message.message));
+        const parsed = (await req.json()) as Message;
+        publish(parsed.topic, JSON.stringify(parsed.message));
         return new Response("Message published");
       },
     },
@@ -155,6 +155,30 @@ const server = Bun.serve({
 
       const { channelID } = req.params;
       return subscribeToChannel(channelID, origin);
+    },
+    "/ws": async (req, server) => {
+      const upgraded = server.upgrade(req);
+      if (upgraded) return undefined;
+      return new Response("Upgrade failed", { status: 400 });
+    },
+  },
+  websocket: {
+    open(ws) {
+      ws.send("WebSocket connection opened");
+    },
+    close(ws, code, reason) {
+      console.log(
+        `WebSocket connection closed: code=${code}, reason=${reason}`,
+      );
+    },
+    message(ws, message) {
+      try {
+        const parsed = JSON.parse(message.toString()) as Message;
+        publish(parsed.topic, JSON.stringify(parsed.message));
+        ws.send(JSON.stringify({ success: "true", message: "published" }));
+      } catch (error) {
+        console.error(error);
+      }
     },
   },
 });
