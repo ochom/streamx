@@ -128,26 +128,16 @@ const server = Bun.serve({
           return unauthorized();
         }
 
-        const parsed = (await req.json()) as Message;
-        publish(parsed.topic, JSON.stringify(parsed.message));
+        try {
+          const parsed = (await req.json()) as Message;
+          publish(parsed.topic, JSON.stringify(parsed.message));
+        } catch (e) {
+          console.log("parsing json failed");
+        }
         return new Response("Message published");
       },
     },
     "/subscribe/:channelID": async (req) => {
-      const origin = resolveAllowedOrigin(req);
-      if (origin === null) {
-        return forbiddenOrigin();
-      }
-
-      const { channelID } = req.params;
-      return subscribeToChannel(channelID, origin);
-    },
-    /**
-     * @deprecated This endpoint is deprecated and will be removed in future versions.
-     * Please use /subscribe/:channelID instead.
-     *
-     */
-    "/subscribe/:apiKey/:instanceID/:channelID": async (req) => {
       const origin = resolveAllowedOrigin(req);
       if (origin === null) {
         return forbiddenOrigin();
