@@ -97,7 +97,11 @@ function subscribeToChannel(channelId: string, allowOrigin = "*") {
       );
 
       unsubscribe = subscribe(channelId, (msg: string) => {
-        messageListener?.(JSON.parse(msg));
+        try {
+          messageListener?.(JSON.parse(msg));
+        } catch (e) {
+          console.log("parsing json failed: ", e);
+        }
       });
     },
     cancel() {
